@@ -1,0 +1,31 @@
+Microsoft (R) COFF/PE Dumper Version 14.44.35219.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+
+Dump of file C:\Windows\System32\nvapi64.dll
+
+File Type: DLL
+
+  Section contains the following exports for nvapi64.dll
+
+    00000000 characteristics
+    FFFFFFFF time date stamp
+        0.00 version
+           1 ordinal base
+           2 number of functions
+           2 number of names
+
+    ordinal hint RVA      name
+
+          1    0 00165600 nvapi_Direct_GetMethod
+          2    1 00168580 nvapi_QueryInterface
+
+  Summary
+
+       71000 .data
+       42000 .pdata
+       DE000 .rdata
+        5000 .reloc
+        A000 .rsrc
+      600000 .text
+        1000 _RDATA

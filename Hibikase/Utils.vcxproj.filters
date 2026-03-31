@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{679D7C6B-D07B-4D7C-9758-D6E37835730C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{CE5BEB27-23EE-40B0-9EB4-01FBB08C5043}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FrameWork\Utils\aftermathtraker.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Utils\consolelogger.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Utils\stringtranslatehelper.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FrameWork\Utils\aftermathtraker.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Utils\consolelogger.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Utils\stringtranslatehelper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props" Condition="Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -53,10 +54,8 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -70,54 +69,24 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
-    <IntDir>$(SolutionDir)\bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-  </PropertyGroup>
+  <Import Project="Hibikase.Shared.props" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-    </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -125,21 +94,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -147,39 +105,49 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="FrameWork\BackEnd\d3d12backend.h" />
-    <ClInclude Include="FrameWork\BackEnd\vulkanbackend.h" />
-    <ClInclude Include="FrameWork\RenderGraph\rendergraph.h" />
-    <ClInclude Include="FrameWork\Utils\consolelogger.h" />
-    <ClInclude Include="FrameWork\Window\cameracontroller.h" />
-    <ClInclude Include="FrameWork\Window\imguilayer.h" />
-    <ClInclude Include="FrameWork\Window\inputmapping.h" />
-    <ClInclude Include="FrameWork\Window\inputsystem.h" />
-    <ClInclude Include="FrameWork\Window\window.h" />
-    <ClInclude Include="FrameWork\Window\windowmanager.h" />
-    <ClInclude Include="FrameWork\Window\windowtypes.h" />
+    <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="FrameWork\BackEnd\d3d12backend.cpp" />
-    <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp" />
-    <ClCompile Include="FrameWork\RenderGraph\rendergraph.cpp" />
-    <ClCompile Include="FrameWork\Utils\consolelogger.cpp" />
-    <ClCompile Include="FrameWork\Window\cameracontroller.cpp" />
-    <ClCompile Include="FrameWork\Window\imguilayer.cpp" />
-    <ClCompile Include="FrameWork\Window\inputmapping.cpp" />
-    <ClCompile Include="FrameWork\Window\inputsystem.cpp" />
-    <ClCompile Include="FrameWork\Window\window.cpp" />
-    <ClCompile Include="FrameWork\Window\windowmanager.cpp" />
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx12.cpp" />
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_glfw.cpp" />
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_vulkan.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
-    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ProjectReference Include="BackEnd.vcxproj">
+      <Project>{29C25236-E9EB-4FBE-8FA8-CD623EDA0475}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="Common.vcxproj">
+      <Project>{4F07C3EA-8BE4-4D26-930B-10FB025C628E}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="RenderGraph.vcxproj">
+      <Project>{1C54B51E-E86F-49EF-B50F-54436912C481}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="Utils.vcxproj">
+      <Project>{320D1B22-BFE1-4EDF-8980-F9929D51679E}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <ProjectReference Include="Window.vcxproj">
+      <Project>{EA1735D6-E9C2-4130-8BCF-418CE000C1D1}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Restore to download them. Missing file: {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props'))" />
+    <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets'))" />
+  </Target>
 </Project>

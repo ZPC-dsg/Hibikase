@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <IntDir>$(SolutionDir)\bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <TrackFileAccess>false</TrackFileAccess>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Lib>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Lib>
+    <Link>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Lib>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Lib>
+    <Link>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;
+NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Lib>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Lib>
+    <Link>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;
+NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Lib>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Lib>
+    <Link>
+      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    </Link>
+  </ItemDefinitionGroup>
+</Project>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{A08B2C27-2E2C-4726-94D6-2690A28A97BB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{1D723693-1EA6-4323-B532-619EB631ED0F}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FrameWork\Common\allocators.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Common\refcountptr.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Common\resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FrameWork\Common\allocators.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

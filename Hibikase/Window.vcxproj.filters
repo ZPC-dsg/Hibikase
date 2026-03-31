@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{E46CB6C2-D25B-4BA4-9106-2CB58EA943F6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{C649A0D0-6E77-48FD-AE44-268B059A4F6B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FrameWork\Window\cameracontroller.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\imguilayer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\inputmapping.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\inputsystem.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\window.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\windowmanager.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\windowtypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="FrameWork\Window\cameracontroller.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\imguilayer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\inputmapping.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\inputsystem.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\window.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\windowmanager.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

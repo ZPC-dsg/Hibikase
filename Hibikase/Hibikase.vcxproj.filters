@@ -1,150 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="源文件">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{5351A47F-A4CB-4756-8A86-B5362DA70DEA}</UniqueIdentifier>
     </Filter>
-    <Filter Include="头文件">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="资源文件">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="RenderGraph">
-      <UniqueIdentifier>{436b1be8-d29c-4a0d-aad6-a6275d679913}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="RenderGraph\Headers">
-      <UniqueIdentifier>{729eb574-228e-4c9c-984d-4c30cfefefbe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="RenderGraph\Sources">
-      <UniqueIdentifier>{e8f0bf79-e7db-49a9-94ba-5630d5ea13ec}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BackEnd">
-      <UniqueIdentifier>{d5ff0e66-418a-4328-a9fa-de678348a4f6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BackEnd\Headers">
-      <UniqueIdentifier>{ae6e5e11-f364-4507-bc13-0b04f93dfcfa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="BackEnd\Sources">
-      <UniqueIdentifier>{d3787fd3-f73b-4882-9db8-b176818b1309}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Window">
-      <UniqueIdentifier>{4ec4a6b1-95b0-4ce9-ae01-8c8deff645f1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Window\Headers">
-      <UniqueIdentifier>{58cfa290-2ca8-43ef-a319-5ea6fbac2e3d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Window\Sources">
-      <UniqueIdentifier>{93e8ce0e-655c-4b8d-a7e5-395f496e3c17}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils">
-      <UniqueIdentifier>{12cd8d2f-5e35-4a7f-a0e1-4d7b89f4416f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils\Headers">
-      <UniqueIdentifier>{f41b78f7-d9fe-4d39-84a6-a13712389c65}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Utils\Sources">
-      <UniqueIdentifier>{04509df3-2fae-4fd8-a854-e84e5a605f58}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty">
-      <UniqueIdentifier>{5c8d4505-2b62-48a3-a408-91147e4e95e7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ThirdParty\ImGui">
-      <UniqueIdentifier>{f9307443-67ca-4dfd-b89a-f329478eaa83}</UniqueIdentifier>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{A148F23B-C0FA-45B6-9D6F-29A679558003}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="FrameWork\RenderGraph\rendergraph.h">
-      <Filter>RenderGraph\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\BackEnd\d3d12backend.h">
-      <Filter>BackEnd\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\BackEnd\vulkanbackend.h">
-      <Filter>BackEnd\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\cameracontroller.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\imguilayer.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\inputmapping.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\inputsystem.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\window.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\windowmanager.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Window\windowtypes.h">
-      <Filter>Window\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameWork\Utils\consolelogger.h">
-      <Filter>Utils\Headers</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="FrameWork\RenderGraph\rendergraph.cpp">
-      <Filter>RenderGraph\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\BackEnd\d3d12backend.cpp">
-      <Filter>BackEnd\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp">
-      <Filter>BackEnd\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\cameracontroller.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\imguilayer.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\inputmapping.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\inputsystem.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\window.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Window\windowmanager.cpp">
-      <Filter>Window\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameWork\Utils\consolelogger.cpp">
-      <Filter>Utils\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx12.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_glfw.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_vulkan.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
-      <Filter>ThirdParty\ImGui</Filter>
+      <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

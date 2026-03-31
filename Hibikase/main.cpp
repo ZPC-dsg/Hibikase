@@ -1,5 +1,3 @@
-#include <BackEnd\d3d12backend.h>
-#include <BackEnd\vulkanbackend.h>
 #include <Utils\consolelogger.h>
 #include <Window\cameracontroller.h>
 #include <Window\imguilayer.h>
@@ -12,6 +10,33 @@
 #include <cstdlib>
 #include <string>
 #include <thread>
+#include <vector>
+
+typedef struct HWND__* HWND;
+
+namespace HApp
+{
+class ZWWindow;
+class ZWWindowManager;
+}
+
+namespace HRHI::HD3D12
+{
+    class ZWD3D12Backend final
+    {
+    public:
+        static HWND GetWindowHandle(const HApp::ZWWindow& window);
+    };
+}
+
+namespace HRHI
+{
+    class VulkanBackend final
+    {
+    public:
+        static std::vector<const char*> GetRequiredInstanceExtensions(const HApp::ZWWindowManager& windowManager);
+    };
+}
 
 namespace
 {
@@ -135,7 +160,7 @@ int main(int argc, char** argv)
     HApp::ZWConsoleLogger::Info("{}", imguiLayer.GetStatusMessage());
     HApp::ZWConsoleLogger::PrintProperty("ImGui platform backend", imguiLayer.IsNativeIntegrationAvailable());
     HApp::ZWConsoleLogger::PrintProperty("ImGui renderer backend", imguiLayer.IsRendererBackendInitialized());
-    HApp::ZWConsoleLogger::PrintProperty("Main HWND ready", HRHI::D3D12Backend::GetWindowHandle(*mainWindow) != nullptr);
+    HApp::ZWConsoleLogger::PrintProperty("Main HWND ready", HRHI::HD3D12::ZWD3D12Backend::GetWindowHandle(*mainWindow) != nullptr);
     HApp::ZWConsoleLogger::PrintProperty("GLFW Vulkan extension count", HRHI::VulkanBackend::GetRequiredInstanceExtensions(windowManager).size());
     if (selfTestDurationMs > 0)
     {

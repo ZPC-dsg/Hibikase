@@ -2,3 +2,6 @@ bin/
 docs/
 
 .vs/
+*.obj
+*.pdb
+*.idb
