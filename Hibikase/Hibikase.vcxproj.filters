@@ -40,6 +40,15 @@
     <Filter Include="Window\Sources">
       <UniqueIdentifier>{93e8ce0e-655c-4b8d-a7e5-395f496e3c17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{12cd8d2f-5e35-4a7f-a0e1-4d7b89f4416f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Headers">
+      <UniqueIdentifier>{f41b78f7-d9fe-4d39-84a6-a13712389c65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils\Sources">
+      <UniqueIdentifier>{04509df3-2fae-4fd8-a854-e84e5a605f58}</UniqueIdentifier>
+    </Filter>
     <Filter Include="ThirdParty">
       <UniqueIdentifier>{5c8d4505-2b62-48a3-a408-91147e4e95e7}</UniqueIdentifier>
     </Filter>
@@ -78,6 +87,9 @@
     <ClInclude Include="FrameWork\Window\windowtypes.h">
       <Filter>Window\Headers</Filter>
     </ClInclude>
+    <ClInclude Include="FrameWork\Utils\consolelogger.h">
+      <Filter>Utils\Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FrameWork\RenderGraph\rendergraph.cpp">
@@ -109,6 +121,9 @@
     </ClCompile>
     <ClCompile Include="FrameWork\Window\windowmanager.cpp">
       <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Utils\consolelogger.cpp">
+      <Filter>Utils\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx12.cpp">
       <Filter>ThirdParty\ImGui</Filter>

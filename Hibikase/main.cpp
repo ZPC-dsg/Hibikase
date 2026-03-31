@@ -1,5 +1,6 @@
 #include <BackEnd\d3d12backend.h>
 #include <BackEnd\vulkanbackend.h>
+#include <Utils\consolelogger.h>
 #include <Window\cameracontroller.h>
 #include <Window\imguilayer.h>
 #include <Window\inputsystem.h>
@@ -9,7 +10,6 @@
 
 #include <chrono>
 #include <cstdlib>
-#include <iostream>
 #include <string>
 #include <thread>
 
@@ -31,13 +31,13 @@ const char* ToBackendName(HApp::ZWGraphicsBackend graphicsBackend)
 
 void PrintControls()
 {
-    std::cout << "Controls\n";
-    std::cout << "  Right Mouse Drag: rotate camera\n";
-    std::cout << "  Mouse Wheel: zoom FOV\n";
-    std::cout << "  WASD / Arrow Keys: move camera\n";
-    std::cout << "  F1: toggle cursor lock\n";
-    std::cout << "  F11: toggle fullscreen\n";
-    std::cout << "  ESC: close active demo window\n";
+    HApp::ZWConsoleLogger::PrintSection("Controls");
+    HApp::ZWConsoleLogger::PrintListItem("Right Mouse Drag  rotate camera");
+    HApp::ZWConsoleLogger::PrintListItem("Mouse Wheel       zoom field of view");
+    HApp::ZWConsoleLogger::PrintListItem("WASD / Arrow Keys move camera");
+    HApp::ZWConsoleLogger::PrintListItem("F1                toggle cursor lock");
+    HApp::ZWConsoleLogger::PrintListItem("F11               toggle fullscreen");
+    HApp::ZWConsoleLogger::PrintListItem("ESC               close the active demo window");
 }
 
 int ParseSelfTestDurationMs(int argc, char** argv)
@@ -65,13 +65,20 @@ int ParseSelfTestDurationMs(int argc, char** argv)
 int main(int argc, char** argv)
 {
     const int selfTestDurationMs = ParseSelfTestDurationMs(argc, argv);
+    HApp::ZWConsoleLogger::Initialize();
+    HApp::ZWConsoleLogger::PrintBanner("HIBIKASE RUNTIME");
+    HApp::ZWConsoleLogger::PrintSection("Startup");
 
     HApp::ZWWindowManager windowManager;
     if (!windowManager.Initialize())
     {
-        std::cerr << "Failed to initialize window manager: " << windowManager.GetLastError() << '\n';
+        HApp::ZWConsoleLogger::Error("Failed to initialize window manager: {}", windowManager.GetLastError());
+        HApp::ZWConsoleLogger::Shutdown();
         return 1;
     }
+
+    HApp::ZWConsoleLogger::PrintProperty("Window manager", "ready");
+    HApp::ZWConsoleLogger::PrintProperty("Vulkan surface support", windowManager.IsVulkanSupported() ? "available" : "unavailable");
 
     HApp::ZWWindowDesc mainWindowDesc;
     mainWindowDesc.width = 1280;
@@ -83,9 +90,13 @@ int main(int argc, char** argv)
     HApp::ZWWindow* mainWindow = windowManager.CreateWindow(mainWindowDesc);
     if (mainWindow == nullptr)
     {
-        std::cerr << "Failed to create main window: " << windowManager.GetLastError() << '\n';
+        HApp::ZWConsoleLogger::Error("Failed to create main window: {}", windowManager.GetLastError());
+        HApp::ZWConsoleLogger::Shutdown();
         return 1;
     }
+
+    HApp::ZWConsoleLogger::PrintProperty("Main window", mainWindowDesc.title);
+    HApp::ZWConsoleLogger::PrintProperty("Main backend", ToBackendName(mainWindowDesc.graphicsBackend));
 
     HApp::ZWWindowDesc auxiliaryWindowDesc;
     auxiliaryWindowDesc.width = 640;
@@ -97,7 +108,12 @@ int main(int argc, char** argv)
     HApp::ZWWindow* auxiliaryWindow = windowManager.CreateWindow(auxiliaryWindowDesc);
     if (auxiliaryWindow == nullptr)
     {
-        std::cerr << "Auxiliary window creation failed, continuing with the main window only.\n";
+        HApp::ZWConsoleLogger::Warning("Auxiliary window creation failed, continuing with the main window only.");
+    }
+    else
+    {
+        HApp::ZWConsoleLogger::PrintProperty("Auxiliary window", auxiliaryWindowDesc.title);
+        HApp::ZWConsoleLogger::PrintProperty("Auxiliary backend", ToBackendName(auxiliaryWindowDesc.graphicsBackend));
     }
 
     HApp::ZWInputSystem mainInputSystem;
@@ -115,15 +131,15 @@ int main(int argc, char** argv)
     HApp::ZWImGuiLayer imguiLayer;
     imguiLayer.InitializeForD3D12(*mainWindow, HApp::ZWImGuiD3D12InitInfo{});
 
-    std::cout << imguiLayer.GetStatusMessage() << '\n';
-    std::cout << "ImGui platform backend active: " << (imguiLayer.IsNativeIntegrationAvailable() ? "yes" : "no") << '\n';
-    std::cout << "ImGui renderer backend active: " << (imguiLayer.IsRendererBackendInitialized() ? "yes" : "no") << '\n';
-    std::cout << "Vulkan surface support: " << (windowManager.IsVulkanSupported() ? "available" : "unavailable") << '\n';
-    std::cout << "Main HWND ready: " << (HRHI::D3D12Backend::GetWindowHandle(*mainWindow) != nullptr ? "yes" : "no") << '\n';
-    std::cout << "GLFW Vulkan extension count: " << HRHI::VulkanBackend::GetRequiredInstanceExtensions(windowManager).size() << '\n';
+    HApp::ZWConsoleLogger::PrintSection("Runtime Overview");
+    HApp::ZWConsoleLogger::Info("{}", imguiLayer.GetStatusMessage());
+    HApp::ZWConsoleLogger::PrintProperty("ImGui platform backend", imguiLayer.IsNativeIntegrationAvailable());
+    HApp::ZWConsoleLogger::PrintProperty("ImGui renderer backend", imguiLayer.IsRendererBackendInitialized());
+    HApp::ZWConsoleLogger::PrintProperty("Main HWND ready", HRHI::D3D12Backend::GetWindowHandle(*mainWindow) != nullptr);
+    HApp::ZWConsoleLogger::PrintProperty("GLFW Vulkan extension count", HRHI::VulkanBackend::GetRequiredInstanceExtensions(windowManager).size());
     if (selfTestDurationMs > 0)
     {
-        std::cout << "Self-test mode: the demo will close automatically after " << selfTestDurationMs << " ms.\n";
+        HApp::ZWConsoleLogger::Warning("Self-test mode is active. The demo will close automatically after {} ms.", selfTestDurationMs);
     }
     PrintControls();
 
@@ -210,5 +226,8 @@ int main(int argc, char** argv)
     auxiliaryInputSystem.DetachWindow();
     mainInputSystem.DetachWindow();
     windowManager.Shutdown();
+    HApp::ZWConsoleLogger::PrintSection("Shutdown");
+    HApp::ZWConsoleLogger::Info("Demo finished cleanly.");
+    HApp::ZWConsoleLogger::Shutdown();
     return 0;
 }
