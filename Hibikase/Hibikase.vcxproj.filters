@@ -31,6 +31,21 @@
     <Filter Include="BackEnd\Sources">
       <UniqueIdentifier>{d3787fd3-f73b-4882-9db8-b176818b1309}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Window">
+      <UniqueIdentifier>{4ec4a6b1-95b0-4ce9-ae01-8c8deff645f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Headers">
+      <UniqueIdentifier>{58cfa290-2ca8-43ef-a319-5ea6fbac2e3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Window\Sources">
+      <UniqueIdentifier>{93e8ce0e-655c-4b8d-a7e5-395f496e3c17}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty">
+      <UniqueIdentifier>{5c8d4505-2b62-48a3-a408-91147e4e95e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ThirdParty\ImGui">
+      <UniqueIdentifier>{f9307443-67ca-4dfd-b89a-f329478eaa83}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameWork\RenderGraph\rendergraph.h">
@@ -41,6 +56,27 @@
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\vulkanbackend.h">
       <Filter>BackEnd\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\cameracontroller.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\imguilayer.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\inputmapping.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\inputsystem.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\window.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\windowmanager.h">
+      <Filter>Window\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameWork\Window\windowtypes.h">
+      <Filter>Window\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -55,6 +91,45 @@
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp">
       <Filter>BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\cameracontroller.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\imguilayer.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\inputmapping.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\inputsystem.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\window.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\Window\windowmanager.cpp">
+      <Filter>Window\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx12.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_glfw.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_vulkan.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp">
+      <Filter>ThirdParty\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

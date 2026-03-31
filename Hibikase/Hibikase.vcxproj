@@ -111,14 +111,17 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>FrameWork;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022\glfw3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -129,24 +132,47 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>FrameWork;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022\glfw3.dll" "$(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="FrameWork\BackEnd\d3d12backend.h" />
     <ClInclude Include="FrameWork\BackEnd\vulkanbackend.h" />
     <ClInclude Include="FrameWork\RenderGraph\rendergraph.h" />
+    <ClInclude Include="FrameWork\Window\cameracontroller.h" />
+    <ClInclude Include="FrameWork\Window\imguilayer.h" />
+    <ClInclude Include="FrameWork\Window\inputmapping.h" />
+    <ClInclude Include="FrameWork\Window\inputsystem.h" />
+    <ClInclude Include="FrameWork\Window\window.h" />
+    <ClInclude Include="FrameWork\Window\windowmanager.h" />
+    <ClInclude Include="FrameWork\Window\windowtypes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FrameWork\BackEnd\d3d12backend.cpp" />
     <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp" />
     <ClCompile Include="FrameWork\RenderGraph\rendergraph.cpp" />
+    <ClCompile Include="FrameWork\Window\cameracontroller.cpp" />
+    <ClCompile Include="FrameWork\Window\imguilayer.cpp" />
+    <ClCompile Include="FrameWork\Window\inputmapping.cpp" />
+    <ClCompile Include="FrameWork\Window\inputsystem.cpp" />
+    <ClCompile Include="FrameWork\Window\window.cpp" />
+    <ClCompile Include="FrameWork\Window\windowmanager.cpp" />
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_dx12.cpp" />
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="ThirdParty\imgui\backends\imgui_impl_vulkan.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_tables.cpp" />
+    <ClCompile Include="ThirdParty\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
