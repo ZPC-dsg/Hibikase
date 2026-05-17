@@ -5,6 +5,8 @@
       <ClCompile Include="ThirdParty\nvapi\nvapiwrapper.cpp" />
       <ClCompile Include="ThirdParty\rtxmu\src\D3D12AccelStructManager.cpp" />
       <ClCompile Include="ThirdParty\rtxmu\src\D3D12Suballocator.cpp" />
+      <ClCompile Include="ThirdParty\rtxmu\src\VkAccelStructManager.cpp" />
+      <ClCompile Include="ThirdParty\rtxmu\src\VulkanSuballocator.cpp" />
       <ClCompile Include="ThirdParty\rtxmu\src\Logger.cpp" />
     </ItemGroup>
   </Target>

@@ -1,5 +1,9 @@
 #pragma once
 
+#if defined(_WIN32) && !defined(VK_USE_PLATFORM_WIN32_KHR)
+#define VK_USE_PLATFORM_WIN32_KHR 1
+#endif
+
 #include <BackEnd/RHIinterface.h>
 
 #include <vulkan/vulkan.h>

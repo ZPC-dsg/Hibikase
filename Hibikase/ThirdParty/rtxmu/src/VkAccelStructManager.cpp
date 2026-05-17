@@ -22,6 +22,10 @@
 
 #include "rtxmu/VkAccelStructManager.h"
 
+#include <Utils/consolelogger.h>
+
+#include <string_view>
+
 namespace rtxmu
 {
     VkAccelStructManager::VkAccelStructManager(const vk::Instance&       instance,
@@ -39,7 +43,16 @@ namespace rtxmu
 
     void VkAccelStructManager::logCallbackFunction(const char* msg)
     {
-        printf(msg);
+        std::string_view message = msg != nullptr ? std::string_view(msg) : std::string_view();
+        while (!message.empty() && (message.back() == '\n' || message.back() == '\r'))
+        {
+            message.remove_suffix(1);
+        }
+
+        if (!message.empty())
+        {
+            HApp::ZWConsoleLogger::Debug("RTXMU Vulkan: {}", message);
+        }
     }
 
     // Initializes suballocator block size

@@ -94,9 +94,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)Test\compile_vulkan_shaders.cmd" "$(OutDir)Shaders\test"</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022\glfw3.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
@@ -109,9 +112,12 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3dll.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022;ThirdParty\nvapi;$(VK_SDK_PATH)\Lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3dll.lib;vulkan-1.lib;d3d12.lib;dxgi.lib;dxguid.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)Test\compile_vulkan_shaders.cmd" "$(OutDir)Shaders\test"</Command>
+    </PreBuildEvent>
     <PostBuildEvent>
       <Command>copy /Y "$(ProjectDir)ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\lib-vc2022\glfw3.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
@@ -121,7 +127,10 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Test\d3d12test.cpp" />
     <ClCompile Include="Test\main.cpp" />
+    <ClCompile Include="Test\testcommon.cpp" />
+    <ClCompile Include="Test\vulkantest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\test\triangle.vs.hlsl">

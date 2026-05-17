@@ -9,7 +9,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Test\d3d12test.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
     <ClCompile Include="Test\main.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\testcommon.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Test\vulkantest.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

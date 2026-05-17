@@ -104,7 +104,24 @@
     <ClCompile Include="FrameWork\BackEnd\RHIformatinfo.cpp" />
     <ClCompile Include="FrameWork\BackEnd\RHIinterface.cpp" />
     <ClCompile Include="FrameWork\BackEnd\statetracking.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanallocator.cpp" />
     <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanbuffer.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkancommandlist.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanconstants.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkandevice.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanqueue.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkancompute.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkangraphics.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanmeshlets.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanqueries.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanraytracing.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanresourcebindings.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanshader.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanstagingtexture.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanstatetracking.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkantexture.cpp" />
+    <ClCompile Include="FrameWork\BackEnd\vulkanupload.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

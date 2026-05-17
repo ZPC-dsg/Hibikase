@@ -1,111 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Headers">
+    <Filter Include="FrameWork">
       <UniqueIdentifier>{9B4D2BD3-85B7-4723-B3BC-2E1B5EDB7440}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Sources">
+    <Filter Include="FrameWork\BackEnd">
       <UniqueIdentifier>{9FFBBF90-5B4C-4864-AE66-6D953C4550B0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FrameWork\BackEnd\Headers">
+      <UniqueIdentifier>{6AFEB327-4DBA-4E67-B270-023BE2F4653F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="FrameWork\BackEnd\Sources">
+      <UniqueIdentifier>{94CE5728-0CC1-4744-98B0-BD8F12C7168A}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameWork\BackEnd\d3d12backend.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\d3d12unique.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\resourcebindingmap.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\RHIbasictypes.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\RHIconstants.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\RHIenums.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\RHIinterface.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\RHItypedefs.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\statetracking.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\versioning.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\vulkanbackend.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
     <ClInclude Include="FrameWork\BackEnd\vulkanunique.h">
-      <Filter>Headers</Filter>
+      <Filter>FrameWork\BackEnd\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FrameWork\BackEnd\d3d12backend.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12buffer.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12commandlist.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12compute.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12constants.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12descriptorheap.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12device.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12graphics.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12meshlets.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12queries.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12raytracing.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12resourcebindings.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12shader.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12statetracking.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12texture.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\d3d12upload.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\RHIformatinfo.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\RHIinterface.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\statetracking.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanallocator.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
     <ClCompile Include="FrameWork\BackEnd\vulkanbackend.cpp">
-      <Filter>Sources</Filter>
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanbuffer.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkancommandlist.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanconstants.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkandevice.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanqueue.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkancompute.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkangraphics.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanmeshlets.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanqueries.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanraytracing.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanresourcebindings.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanshader.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanstagingtexture.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanstatetracking.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkantexture.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameWork\BackEnd\vulkanupload.cpp">
+      <Filter>FrameWork\BackEnd\Sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
