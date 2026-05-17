@@ -42,10 +42,22 @@ namespace HRHI::HD3D12
         , mStateTracker(context.messageCallback)
         , mDesc(params)
     {
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            mDevice->GetAftermathCrashDumpHelper().RegisterAftermathMarkerTracker(&mAftermathTracker);
+        }
+#endif
     }
 
     ZWD3D12CommandList::~ZWD3D12CommandList()
     {
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            mDevice->GetAftermathCrashDumpHelper().UnRegisterAftermathMarkerTracker(&mAftermathTracker);
+        }
+#endif
     }
 
     HCommon::ZWObject ZWD3D12CommandList::GetNativeObject(ObjectType objectType)
@@ -120,6 +132,16 @@ namespace HRHI::HD3D12
 #if HRHI_D3D12_WITH_COOPVEC
         commandList->commandList->QueryInterface(IID_PPV_ARGS(commandList->commandListPreview.ReleaseAndGetAddressOf()));
 #endif
+
+    #if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            HApp::ZWAftermathRuntime::Get().CreateD3D12ContextHandle(
+            commandList->commandList.Get(),
+            commandList->aftermathContextHandle,
+            m_Context.messageCallback);
+        }
+    #endif
 
         return commandList;
     }
@@ -210,6 +232,18 @@ namespace HRHI::HD3D12
         }
 
         BeginEventMarker(mActiveCommandList->commandList.Get(), name);
+
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled() && mActiveCommandList->aftermathContextHandle != nullptr)
+        {
+            const size_t markerHash = mAftermathTracker.PushEvent(name != nullptr ? name : "");
+            HApp::ZWAftermathRuntime::Get().SetEventMarker(
+                mActiveCommandList->aftermathContextHandle,
+                reinterpret_cast<const void*>(markerHash),
+                0,
+                m_Context.messageCallback);
+        }
+#endif
     }
 
     void ZWD3D12CommandList::EndMarker()
@@ -220,6 +254,13 @@ namespace HRHI::HD3D12
         }
 
         mActiveCommandList->commandList->EndEvent();
+
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            mAftermathTracker.PopEvent();
+        }
+#endif
     }
 
     void ZWD3D12CommandList::SetPushConstants(const void* data, size_t byteSize)

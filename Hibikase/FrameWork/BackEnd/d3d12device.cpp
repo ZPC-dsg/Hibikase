@@ -41,6 +41,24 @@ namespace HRHI::HD3D12
         }
     }
 
+    bool TryEnableAftermath(
+        const char* applicationName,
+        const char* applicationVersion,
+        const char* commandLine,
+        IMessageCallback* messageCallback)
+    {
+        return HApp::ZWAftermathRuntime::Get().EnableD3D12CrashDumps(
+            applicationName,
+            applicationVersion,
+            commandLine,
+            messageCallback);
+    }
+
+    void WaitForAftermathCrashDump(uint32_t timeoutMs, IMessageCallback* messageCallback)
+    {
+        HApp::ZWAftermathRuntime::Get().WaitForCrashDump(timeoutMs, messageCallback);
+    }
+
     ZWDeviceHandle CreateDevice(const ZWDeviceDesc& desc)
     {
         if (desc.pDevice == nullptr)
@@ -217,6 +235,12 @@ namespace HRHI::HD3D12
             mVariableRateShadingSupported = mOptions6.VariableShadingRateTier >= D3D12_VARIABLE_SHADING_RATE_TIER_2;
         }
 
+        mAftermathEnabled = desc.aftermathEnabled
+            && HApp::ZWAftermathRuntime::Get().InitializeD3D12Device(
+                mContext.device,
+                &mAftermathCrashDumpHelper,
+                mContext.messageCallback);
+
         D3D12_INDIRECT_ARGUMENT_DESC argumentDesc = {};
         D3D12_COMMAND_SIGNATURE_DESC signatureDesc = {};
         signatureDesc.NumArgumentDescs = 1;
@@ -377,6 +401,11 @@ namespace HRHI::HD3D12
     ZWD3D12Device::~ZWD3D12Device()
     {
         WaitForIdle();
+
+        if (mAftermathEnabled)
+        {
+            HApp::ZWAftermathRuntime::Get().ClearActiveHelper(&mAftermathCrashDumpHelper);
+        }
 
         if (mFenceEvent != nullptr)
         {

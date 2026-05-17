@@ -107,6 +107,14 @@ namespace HRHI
             bool logBufferLifetime = false;
         };
 
+        bool TryEnableAftermath(
+            const char* applicationName = "Hibikase",
+            const char* applicationVersion = "initial",
+            const char* commandLine = nullptr,
+            IMessageCallback* messageCallback = nullptr);
+
+        void WaitForAftermathCrashDump(uint32_t timeoutMs = 3000, IMessageCallback* messageCallback = nullptr);
+
         ZWDeviceHandle CreateDevice(const ZWDeviceDesc& desc);
 
         DXGI_FORMAT ConvertFormat(EFormat format);

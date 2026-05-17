@@ -197,6 +197,14 @@ namespace HRHI::HD3D12
         }
 #endif
 
+        if (mAftermathEnabled)
+        {
+            HApp::ZWAftermathRuntime::Get().RegisterShaderBinary(
+                std::make_pair(shader->bytecode.data(), shader->bytecode.size()),
+                EGraphicsAPI::D3D12,
+                mContext.messageCallback);
+        }
+
         return ZWShaderHandle::Create(shader);
     }
 
@@ -218,6 +226,14 @@ namespace HRHI::HD3D12
         if (binary != nullptr && binarySize != 0)
         {
             std::memcpy(shaderLibrary->bytecode.data(), binary, binarySize);
+
+            if (mAftermathEnabled)
+            {
+                HApp::ZWAftermathRuntime::Get().RegisterShaderBinary(
+                    std::make_pair(shaderLibrary->bytecode.data(), shaderLibrary->bytecode.size()),
+                    EGraphicsAPI::D3D12,
+                    mContext.messageCallback);
+            }
         }
 
         return ZWShaderLibraryHandle::Create(shaderLibrary);

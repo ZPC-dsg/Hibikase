@@ -15,10 +15,22 @@ namespace HRHI
         , m_UploadManager(std::make_unique<ZWVKUploadManager>(device, parameters.uploadChunkSize, 0, false))
         , m_ScratchManager(std::make_unique<ZWVKUploadManager>(device, parameters.scratchChunkSize, parameters.scratchMaxMemory, true))
     {
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            mDevice->GetAftermathCrashDumpHelper().RegisterAftermathMarkerTracker(&mAftermathTracker);
+        }
+#endif
     }
 
     ZWVKCommandList::~ZWVKCommandList()
     {
+#if HRHI_WITH_AFTERMATH
+        if (mDevice != nullptr && mDevice->IsAftermathEnabled())
+        {
+            mDevice->GetAftermathCrashDumpHelper().UnRegisterAftermathMarkerTracker(&mAftermathTracker);
+        }
+#endif
     }
 
     HCommon::ZWObject ZWVKCommandList::GetNativeObject(ObjectType objectType)

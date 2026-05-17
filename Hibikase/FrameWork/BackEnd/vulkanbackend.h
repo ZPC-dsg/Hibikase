@@ -629,6 +629,7 @@ namespace HRHI
     {
     public:
         ZWShaderDesc desc;
+        std::vector<uint8_t> bytecode;
 
         vk::ShaderModule shaderModule;
         vk::ShaderStageFlagBits stageFlagBits{};
@@ -655,6 +656,7 @@ namespace HRHI
     class ZWVKShaderLibrary : public HCommon::RefCounter<IShaderLibrary>
     {
     public:
+        std::vector<uint8_t> bytecode;
         vk::ShaderModule shaderModule;
 
         explicit ZWVKShaderLibrary(const ZWVKContext& context)

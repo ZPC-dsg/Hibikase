@@ -33,6 +33,8 @@ namespace HRHI
 
         shader->desc = desc;
         shader->stageFlagBits = ConvertShaderTypeToShaderStageFlagBits(desc.shaderType);
+        shader->bytecode.resize(binarySize);
+        std::memcpy(shader->bytecode.data(), binary, binarySize);
 
         auto shaderInfo = vk::ShaderModuleCreateInfo()
             .setCodeSize(binarySize)
@@ -44,12 +46,21 @@ namespace HRHI
         const std::string debugName = desc.debugName + ":" + desc.entryName;
         mContext.NameVKObject(VkShaderModule(shader->shaderModule), vk::ObjectType::eShaderModule, vk::DebugReportObjectTypeEXT::eShaderModule, debugName.c_str());
 
+#if HRHI_WITH_AFTERMATH
+        HApp::ZWAftermathRuntime::Get().RegisterShaderBinary(
+            std::make_pair(shader->bytecode.data(), shader->bytecode.size()),
+            EGraphicsAPI::VULKAN,
+            mContext.messageCallback);
+#endif
+
         return ZWShaderHandle::Create(shader);
     }
 
     ZWShaderLibraryHandle ZWVKDevice::CreateShaderLibrary(const void* binary, const size_t binarySize)
     {
         ZWVKShaderLibrary* library = new ZWVKShaderLibrary(mContext);
+        library->bytecode.resize(binarySize);
+        std::memcpy(library->bytecode.data(), binary, binarySize);
         
         auto shaderInfo = vk::ShaderModuleCreateInfo()
             .setCodeSize(binarySize)
@@ -57,6 +68,13 @@ namespace HRHI
 
         const vk::Result res = mContext.device.createShaderModule(&shaderInfo, mContext.allocationCallbacks, &library->shaderModule);
         CHECK_VK_FAIL(res)
+
+#if HRHI_WITH_AFTERMATH
+        HApp::ZWAftermathRuntime::Get().RegisterShaderBinary(
+            std::make_pair(library->bytecode.data(), library->bytecode.size()),
+            EGraphicsAPI::VULKAN,
+            mContext.messageCallback);
+#endif
 
         return ZWShaderLibraryHandle::Create(library);
     }
@@ -91,9 +109,8 @@ namespace HRHI
 
     void ZWVKShader::GetBytecode(const void** ppBytecode, size_t* pSize) const
     {
-        // we don't save these for vulkan
-        if (ppBytecode) *ppBytecode = nullptr;
-        if (pSize) *pSize = 0;
+        if (ppBytecode) *ppBytecode = bytecode.empty() ? nullptr : bytecode.data();
+        if (pSize) *pSize = bytecode.size();
     }
 
     HCommon::ZWObject ZWVKShader::GetNativeObject(ObjectType objectType)
@@ -118,8 +135,8 @@ namespace HRHI
 
     void ZWVKShaderLibrary::GetBytecode(const void** ppBytecode, size_t* pSize) const
     {
-        if (ppBytecode) *ppBytecode = nullptr;
-        if (pSize) *pSize = 0;
+        if (ppBytecode) *ppBytecode = bytecode.empty() ? nullptr : bytecode.data();
+        if (pSize) *pSize = bytecode.size();
     }
 
     ZWShaderHandle ZWVKShaderLibrary::GetShader(const char* entryName, EShaderType shaderType)

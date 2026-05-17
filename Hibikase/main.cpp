@@ -1,3 +1,7 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include <Utils\consolelogger.h>
 #include <Window\cameracontroller.h>
 #include <Window\imguilayer.h>
@@ -89,6 +93,13 @@ int ParseSelfTestDurationMs(int argc, char** argv)
 
 int main(int argc, char** argv)
 {
+    // ´¦ÀíCRTÄÚ´æÐ¹Â¶
+#if defined(_DEBUG) || defined(DEBUG)
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
+
+    // TODO £ºCreate Scene
+
     const int selfTestDurationMs = ParseSelfTestDurationMs(argc, argv);
     HApp::ZWConsoleLogger::Initialize();
     HApp::ZWConsoleLogger::PrintBanner("HIBIKASE RUNTIME");

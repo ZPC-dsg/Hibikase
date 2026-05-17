@@ -6,6 +6,7 @@
 
 #include <BackEnd/RHIinterface.h>
 
+#include <vector>
 #include <vulkan/vulkan.h>
 
 namespace HRHI
@@ -63,6 +64,32 @@ namespace HRHI
 
             std::string vulkanLibraryName; // if empty, use default
         };
+
+        struct ZWAftermathDeviceConfiguration
+        {
+            bool enabled = false;
+            VkDeviceDiagnosticsConfigCreateInfoNV diagnosticsConfig{};
+
+            const void* ChainDeviceCreateInfo(const void* next)
+            {
+                diagnosticsConfig.pNext = const_cast<void*>(next);
+                return enabled ? &diagnosticsConfig : next;
+            }
+        };
+
+        bool TryEnableAftermath(
+            const char* applicationName = "Hibikase",
+            const char* applicationVersion = "initial",
+            const char* commandLine = nullptr,
+            IMessageCallback* messageCallback = nullptr);
+
+        void ConfigureAftermathDeviceExtensions(
+            std::vector<const char*>& deviceExtensions,
+            ZWAftermathDeviceConfiguration& configuration,
+            const void* deviceCreateInfoNext = nullptr,
+            IMessageCallback* messageCallback = nullptr);
+
+        void WaitForAftermathCrashDump(uint32_t timeoutMs = 3000, IMessageCallback* messageCallback = nullptr);
 
         ZWDeviceHandle CreateDevice(const ZWDeviceDesc& desc);
 

@@ -4,6 +4,10 @@
     <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)\bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <TrackFileAccess>false</TrackFileAccess>
+    <NsightAftermathSdkDir Condition="'$(NSIGHT_AFTERMATH_SDK)' != '' and Exists('$(NSIGHT_AFTERMATH_SDK)\include\GFSDK_Aftermath.h')">$(NSIGHT_AFTERMATH_SDK)</NsightAftermathSdkDir>
+    <NsightAftermathSdkDir Condition="'$(NsightAftermathSdkDir)' == '' and Exists('C:\NsightAftermathSDK\include\GFSDK_Aftermath.h')">C:\NsightAftermathSDK</NsightAftermathSdkDir>
+    <NsightAftermathIncludeDir Condition="'$(NsightAftermathSdkDir)' != ''">$(NsightAftermathSdkDir)\include</NsightAftermathIncludeDir>
+    <NsightAftermathLibDir Condition="'$(NsightAftermathSdkDir)' != ''">$(NsightAftermathSdkDir)\lib\x64</NsightAftermathLibDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -47,7 +51,7 @@ NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(NsightAftermathIncludeDir);FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
@@ -68,7 +72,7 @@ NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(NsightAftermathIncludeDir);FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
       <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>

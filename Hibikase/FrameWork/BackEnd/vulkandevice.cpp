@@ -50,6 +50,74 @@ std::string FormatVkResult(vk::Result result)
 namespace HRHI::HVulkan
 {
 
+bool TryEnableAftermath(
+    const char* applicationName,
+    const char* applicationVersion,
+    const char* commandLine,
+    IMessageCallback* messageCallback)
+{
+    return HApp::ZWAftermathRuntime::Get().EnableVulkanCrashDumps(
+        applicationName,
+        applicationVersion,
+        commandLine,
+        messageCallback);
+}
+
+void ConfigureAftermathDeviceExtensions(
+    std::vector<const char*>& deviceExtensions,
+    ZWAftermathDeviceConfiguration& configuration,
+    const void* deviceCreateInfoNext,
+    IMessageCallback* messageCallback)
+{
+    configuration = {};
+
+#if HRHI_WITH_AFTERMATH
+    if (!HApp::ZWAftermathRuntime::Get().IsEnabled())
+    {
+        DispatchMessage(messageCallback, EMessageSeverity::Info, "Vulkan Aftermath device extensions were not injected because crash dump collection is inactive.");
+        return;
+    }
+
+    const auto appendExtension = [&deviceExtensions](const char* extensionName)
+    {
+        if (std::find(deviceExtensions.begin(), deviceExtensions.end(), extensionName) == deviceExtensions.end())
+        {
+            deviceExtensions.push_back(extensionName);
+        }
+    };
+
+    appendExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME);
+    appendExtension(VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME);
+
+    configuration.enabled = true;
+    configuration.diagnosticsConfig = {};
+    configuration.diagnosticsConfig.sType = VK_STRUCTURE_TYPE_DEVICE_DIAGNOSTICS_CONFIG_CREATE_INFO_NV;
+    configuration.diagnosticsConfig.pNext = const_cast<void*>(deviceCreateInfoNext);
+    configuration.diagnosticsConfig.flags =
+        VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_AUTOMATIC_CHECKPOINTS_BIT_NV |
+        VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_RESOURCE_TRACKING_BIT_NV |
+        VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_DEBUG_INFO_BIT_NV |
+        VK_DEVICE_DIAGNOSTICS_CONFIG_ENABLE_SHADER_ERROR_REPORTING_BIT_NV;
+
+    DispatchMessage(
+        messageCallback,
+        EMessageSeverity::Info,
+        "Injected Vulkan Aftermath device extensions: VK_NV_device_diagnostic_checkpoints, VK_NV_device_diagnostics_config.");
+#else
+    (void)deviceExtensions;
+    (void)deviceCreateInfoNext;
+
+    DispatchMessage(messageCallback, EMessageSeverity::Info, "Vulkan Aftermath support was compiled out because Nsight Aftermath SDK headers are unavailable.");
+#endif
+
+    (void)messageCallback;
+}
+
+void WaitForAftermathCrashDump(uint32_t timeoutMs, IMessageCallback* messageCallback)
+{
+    HApp::ZWAftermathRuntime::Get().WaitForCrashDump(timeoutMs, messageCallback);
+}
+
 ZWDeviceHandle CreateDevice(const ZWDeviceDesc& desc)
 {
     if (desc.instance == nullptr || desc.physicalDevice == nullptr || desc.device == nullptr)
@@ -125,6 +193,11 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         { VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME, &mContext.extensions.NV_cluster_acceleration_structure },
         { VK_NV_COOPERATIVE_VECTOR_EXTENSION_NAME, &mContext.extensions.NV_cooperative_vector },
         { VK_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES_EXTENSION_NAME, &mContext.extensions.NV_ray_tracing_linear_swept_spheres },
+
+#if HRHI_WITH_AFTERMATH
+    { VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME, &mContext.extensions.NV_device_diagnostic_checkpoints },
+    { VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME, &mContext.extensions.NV_device_diagnostics_config },
+#endif
 #endif
     };
 
@@ -307,11 +380,45 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         mContext.Error("Failed to create the empty Vulkan descriptor set layout.");
     }
 
+#if HRHI_WITH_AFTERMATH
+    mAftermathEnabled =
+        desc.aftermathEnabled
+        && mContext.extensions.NV_device_diagnostic_checkpoints
+        && mContext.extensions.NV_device_diagnostics_config
+        && HApp::ZWAftermathRuntime::Get().InitializeVulkanDevice(&mAftermathCrashDumpHelper, mContext.messageCallback);
+
+    if (desc.aftermathEnabled)
+    {
+        if (mAftermathEnabled)
+        {
+            mContext.Info("Vulkan Aftermath is active for this device.");
+        }
+        else if (!mContext.extensions.NV_device_diagnostic_checkpoints || !mContext.extensions.NV_device_diagnostics_config)
+        {
+            mContext.Warning("Vulkan Aftermath was requested, but the required Vulkan diagnostics extensions were not enabled on the native device.");
+        }
+        else
+        {
+            mContext.Warning("Vulkan Aftermath was requested, but runtime initialization did not complete.");
+        }
+    }
+#else
     mAftermathEnabled = false;
+
+    if (desc.aftermathEnabled)
+    {
+        mContext.Info("Vulkan Aftermath was requested, but this build was compiled without Nsight Aftermath SDK headers.");
+    }
+#endif
 }
 
 ZWVKDevice::~ZWVKDevice()
 {
+    if (mAftermathEnabled)
+    {
+        HApp::ZWAftermathRuntime::Get().ClearActiveHelper(&mAftermathCrashDumpHelper);
+    }
+
     if (mTimerQueryPool)
     {
         mContext.device.destroyQueryPool(mTimerQueryPool);
@@ -365,6 +472,11 @@ bool ZWVKDevice::WaitForIdle()
     }
     catch (const vk::DeviceLostError&)
     {
+        if (mAftermathEnabled)
+        {
+            HApp::ZWAftermathRuntime::Get().WaitForCrashDump(3000, mContext.messageCallback);
+        }
+
         mContext.Error("Vulkan device lost while waiting for the device to become idle.");
         return false;
     }

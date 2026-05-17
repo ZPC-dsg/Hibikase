@@ -150,4 +150,7 @@
     <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Direct3D.D3D12.1.619.1\build\native\Microsoft.Direct3D.D3D12.targets'))" />
   </Target>
+  <Target Name="CopyNsightAftermathDll" AfterTargets="PostBuildEvent" Condition="'$(Platform)' == 'x64' and '$(NsightAftermathLibDir)' != '' and Exists('$(NsightAftermathLibDir)\GFSDK_AFTERMATH_Lib.x64.dll')">
+    <Copy SourceFiles="$(NsightAftermathLibDir)\GFSDK_AFTERMATH_Lib.x64.dll" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

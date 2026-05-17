@@ -34,6 +34,17 @@ std::string HrToString(HRESULT result)
     return stream.str();
 }
 
+std::string GetCommandLineUtf8()
+{
+    const wchar_t* commandLine = ::GetCommandLineW();
+    if (commandLine == nullptr)
+    {
+        return {};
+    }
+
+    return HTest::WideToUtf8(commandLine);
+}
+
 ComPtr<IDXGIAdapter1> SelectAdapter(IDXGIFactory4* factory, bool& isWarpAdapter)
 {
     isWarpAdapter = false;
@@ -252,14 +263,27 @@ public:
 private:
     bool CreateNativeDeviceAndSwapChain()
     {
+        const std::string commandLineUtf8 = GetCommandLineUtf8();
+        mAftermathEnabled = HRHI::HD3D12::TryEnableAftermath(
+            "Hibikase D3D12 Triangle Test",
+            "initial",
+            commandLineUtf8.c_str(),
+            &mBackEndMessageCallback);
+
+        HApp::ZWConsoleLogger::PrintProperty("D3D12 Aftermath requested", mAftermathEnabled);
+
 #if defined(_DEBUG)
         UINT factoryFlags = 0;
         ComPtr<ID3D12Debug> debugLayer;
-        if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugLayer.ReleaseAndGetAddressOf()))))
+        if (!mAftermathEnabled && SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugLayer.ReleaseAndGetAddressOf()))))
         {
             debugLayer->EnableDebugLayer();
             factoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
             HApp::ZWConsoleLogger::Info("Enabled the D3D12 debug layer.");
+        }
+        else if (mAftermathEnabled)
+        {
+            HApp::ZWConsoleLogger::Info("Skipped the D3D12 debug layer because Nsight Aftermath is active.");
         }
 #else
         UINT factoryFlags = 0;
@@ -359,6 +383,7 @@ private:
         deviceDesc.errorCB = &mBackEndMessageCallback;
         deviceDesc.pDevice = mNativeDevice.Get();
         deviceDesc.pGraphicsCommandQueue = mGraphicsQueue.Get();
+        deviceDesc.aftermathEnabled = mAftermathEnabled;
 
         mDevice = HRHI::HD3D12::CreateDevice(deviceDesc);
         if (!mDevice)
@@ -577,6 +602,11 @@ private:
         const HRESULT result = mSwapChain->Present(1, 0);
         if (FAILED(result))
         {
+            if (result == DXGI_ERROR_DEVICE_REMOVED || result == DXGI_ERROR_DEVICE_RESET)
+            {
+                HRHI::HD3D12::WaitForAftermathCrashDump(3000, &mBackEndMessageCallback);
+            }
+
             HApp::ZWConsoleLogger::Error("Present failed: {}", HrToString(result));
             return false;
         }
@@ -679,6 +709,7 @@ private:
     UINT mFramebufferWidth{ 0 };
     UINT mFramebufferHeight{ 0 };
     bool mUsingWarpAdapter{ false };
+    bool mAftermathEnabled{ false };
 };
 
 }

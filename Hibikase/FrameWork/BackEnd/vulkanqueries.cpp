@@ -231,7 +231,7 @@ namespace HRHI
 #if HRHI_WITH_AFTERMATH
         if (mDevice->IsAftermathEnabled())
         {
-            const size_t aftermathMarker = mAftermathTracker.pushEvent(name);
+            const size_t aftermathMarker = mAftermathTracker.PushEvent(name);
             mCurrentCmdBuf->cmdBuf.setCheckpointNV((const void*)aftermathMarker);
         }
 #endif
@@ -253,7 +253,10 @@ namespace HRHI
         }
         
 #if HRHI_WITH_AFTERMATH
-        mAftermathTracker.popEvent();
+    if (mDevice->IsAftermathEnabled())
+    {
+        mAftermathTracker.PopEvent();
+    }
 #endif
     }
 

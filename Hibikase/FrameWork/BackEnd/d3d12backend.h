@@ -938,6 +938,9 @@ namespace HRHI
             HCommon::RefCountPtr<ID3D12GraphicsCommandList> commandList;
             HCommon::RefCountPtr<ID3D12GraphicsCommandList4> commandList4;
             HCommon::RefCountPtr<ID3D12GraphicsCommandList6> commandList6;
+#if HRHI_WITH_AFTERMATH
+            HApp::ZWAftermathContextHandle aftermathContextHandle = nullptr;
+#endif
 #if HRHI_D3D12_WITH_COOPVEC
             RefCountPtr<ID3D12GraphicsCommandListPreview> commandListPreview;
 #endif
@@ -1089,6 +1092,10 @@ namespace HRHI
             bool mEnableAutomaticBarriers = true;
 
             ZWCommandListParameters mDesc;
+
+#if HRHI_WITH_AFTERMATH
+            HApp::ZWAftermathMarkerTracker mAftermathTracker;
+#endif
 
             std::shared_ptr<ZWD3D12InternalCommandList> mActiveCommandList;
             std::list<std::shared_ptr<ZWD3D12InternalCommandList>> mCommandListPool;

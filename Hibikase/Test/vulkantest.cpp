@@ -6,6 +6,7 @@
 #include <Window/windowmanager.h>
 
 #include <GLFW/glfw3.h>
+#include <Windows.h>
 
 #include <algorithm>
 #include <chrono>
@@ -57,6 +58,17 @@ std::string VkResultToString(VkResult result)
     return stream.str();
 }
 
+std::string GetCommandLineUtf8()
+{
+    const wchar_t* commandLine = ::GetCommandLineW();
+    if (commandLine == nullptr)
+    {
+        return {};
+    }
+
+    return HTest::WideToUtf8(commandLine);
+}
+
 bool CheckVkResult(VkResult result, const char* operation)
 {
     if (result == VK_SUCCESS)
@@ -66,6 +78,29 @@ bool CheckVkResult(VkResult result, const char* operation)
 
     HApp::ZWConsoleLogger::Error("{} failed: {}", operation, VkResultToString(result));
     return false;
+}
+
+bool HasDeviceExtension(VkPhysicalDevice physicalDevice, const char* extensionName)
+{
+    uint32_t extensionCount = 0;
+    if (vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, nullptr) != VK_SUCCESS || extensionCount == 0)
+    {
+        return false;
+    }
+
+    std::vector<VkExtensionProperties> extensions(extensionCount);
+    if (vkEnumerateDeviceExtensionProperties(physicalDevice, nullptr, &extensionCount, extensions.data()) != VK_SUCCESS)
+    {
+        return false;
+    }
+
+    return std::any_of(
+        extensions.begin(),
+        extensions.end(),
+        [extensionName](const VkExtensionProperties& extension)
+        {
+            return std::string(extension.extensionName) == extensionName;
+        });
 }
 
 bool SupportsSwapchainExtension(VkPhysicalDevice physicalDevice);
@@ -132,6 +167,7 @@ private:
     uint32_t mGraphicsQueueFamilyIndex{ 0 };
     uint32_t mFramebufferWidth{ 0 };
     uint32_t mFramebufferHeight{ 0 };
+    bool mAftermathEnabled{ false };
 };
 
 bool SupportsSwapchainExtension(VkPhysicalDevice physicalDevice)
@@ -582,7 +618,27 @@ bool VulkanTriangleTestApplication::CreateNativeDeviceAndSwapChain()
     mGraphicsQueueFamilyIndex = selection.queueFamilies.graphicsAndPresentFamily;
     mPhysicalDeviceName = selection.deviceName;
 
+    VkPhysicalDeviceProperties physicalDeviceProperties{};
+    vkGetPhysicalDeviceProperties(mPhysicalDevice, &physicalDeviceProperties);
+    const bool isNvidiaAdapter = physicalDeviceProperties.vendorID == 0x10DE;
+    const bool supportsAftermathCheckpoints = HasDeviceExtension(mPhysicalDevice, VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME);
+    const bool supportsAftermathDiagnosticsConfig = HasDeviceExtension(mPhysicalDevice, VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME);
+
+    HApp::ZWConsoleLogger::PrintSection("Aftermath Readiness");
+    HApp::ZWConsoleLogger::PrintProperty("Vulkan adapter vendor ID", static_cast<std::size_t>(physicalDeviceProperties.vendorID));
+    HApp::ZWConsoleLogger::PrintProperty("Vulkan adapter is NVIDIA", isNvidiaAdapter);
+    HApp::ZWConsoleLogger::PrintProperty("Supports VK_NV_device_diagnostic_checkpoints", supportsAftermathCheckpoints);
+    HApp::ZWConsoleLogger::PrintProperty("Supports VK_NV_device_diagnostics_config", supportsAftermathDiagnosticsConfig);
+
     mEnabledDeviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+    const std::string commandLineUtf8 = GetCommandLineUtf8();
+    mAftermathEnabled = HRHI::HVulkan::TryEnableAftermath(
+        "Hibikase Vulkan Triangle Test",
+        "initial",
+        commandLineUtf8.c_str(),
+        &mBackEndMessageCallback);
+    HApp::ZWConsoleLogger::PrintProperty("Vulkan Aftermath requested", mAftermathEnabled);
 
     const float queuePriority = 1.0f;
     VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -604,6 +660,15 @@ bool VulkanTriangleTestApplication::CreateNativeDeviceAndSwapChain()
     VkPhysicalDeviceFeatures2 features2{};
     features2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
     features2.pNext = &features12;
+
+    HRHI::HVulkan::ZWAftermathDeviceConfiguration aftermathConfiguration;
+    HRHI::HVulkan::ConfigureAftermathDeviceExtensions(
+        mEnabledDeviceExtensions,
+        aftermathConfiguration,
+        features2.pNext,
+        &mBackEndMessageCallback);
+    HApp::ZWConsoleLogger::PrintProperty("Vulkan Aftermath device config", aftermathConfiguration.enabled);
+    features2.pNext = const_cast<void*>(aftermathConfiguration.ChainDeviceCreateInfo(features2.pNext));
 
     VkDeviceCreateInfo deviceCreateInfo{};
     deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
@@ -648,6 +713,7 @@ bool VulkanTriangleTestApplication::CreateBackEndDevice()
     deviceDesc.numInstanceExtensions = mEnabledInstanceExtensions.size();
     deviceDesc.deviceExtensions = mEnabledDeviceExtensions.data();
     deviceDesc.numDeviceExtensions = mEnabledDeviceExtensions.size();
+    deviceDesc.aftermathEnabled = mAftermathEnabled;
 
     mDevice = HRHI::HVulkan::CreateDevice(deviceDesc);
     if (!mDevice)
@@ -903,6 +969,11 @@ bool VulkanTriangleTestApplication::RenderFrame()
 
     if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR)
     {
+        if (mAftermathEnabled && acquireResult == VK_ERROR_DEVICE_LOST)
+        {
+            HRHI::HVulkan::WaitForAftermathCrashDump(3000, &mBackEndMessageCallback);
+        }
+
         HApp::ZWConsoleLogger::Error("vkAcquireNextImageKHR failed: {}", VkResultToString(acquireResult));
         return false;
     }
@@ -962,6 +1033,11 @@ bool VulkanTriangleTestApplication::RenderFrame()
 
     if (presentResult != VK_SUCCESS)
     {
+        if (mAftermathEnabled && presentResult == VK_ERROR_DEVICE_LOST)
+        {
+            HRHI::HVulkan::WaitForAftermathCrashDump(3000, &mBackEndMessageCallback);
+        }
+
         HApp::ZWConsoleLogger::Error("vkQueuePresentKHR failed: {}", VkResultToString(presentResult));
         return false;
     }
