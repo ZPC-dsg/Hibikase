@@ -5,6 +5,8 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -14,6 +16,45 @@ VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
 namespace
 {
+
+enum class ENvApiRuntimeMode
+{
+    Auto,
+    ForceEnable,
+    ForceDisable
+};
+
+constexpr const char* cRuntimeNvApiEnvironmentVariable = "HIBIKASE_RUNTIME_NVAPI";
+
+ENvApiRuntimeMode GetNvApiRuntimeMode()
+{
+    char* value = nullptr;
+    size_t valueLength = 0;
+    if (_dupenv_s(&value, &valueLength, cRuntimeNvApiEnvironmentVariable) != 0 || value == nullptr)
+    {
+        return ENvApiRuntimeMode::Auto;
+    }
+
+    std::string normalizedValue(value);
+    free(value);
+    std::transform(
+        normalizedValue.begin(),
+        normalizedValue.end(),
+        normalizedValue.begin(),
+        [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+
+    if (normalizedValue == "1" || normalizedValue == "true" || normalizedValue == "enable" || normalizedValue == "enabled")
+    {
+        return ENvApiRuntimeMode::ForceEnable;
+    }
+
+    if (normalizedValue == "0" || normalizedValue == "false" || normalizedValue == "disable" || normalizedValue == "disabled")
+    {
+        return ENvApiRuntimeMode::ForceDisable;
+    }
+
+    return ENvApiRuntimeMode::Auto;
+}
 
 void DispatchMessage(HRHI::IMessageCallback* messageCallback, HRHI::EMessageSeverity severity, const std::string& message)
 {
@@ -225,6 +266,18 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         }
     }
 
+#if HRHI_VULKAN_NV
+    const ENvApiRuntimeMode nvapiRuntimeMode = GetNvApiRuntimeMode();
+    if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceDisable)
+    {
+        mContext.extensions.NV_ray_tracing_invocation_reorder = false;
+        mContext.extensions.NV_cluster_acceleration_structure = false;
+        mContext.extensions.NV_cooperative_vector = false;
+        mContext.extensions.NV_ray_tracing_linear_swept_spheres = false;
+        mContext.Info("Vulkan NVIDIA vendor extensions are disabled by a command line override.");
+    }
+#endif
+
     if (desc.bufferDeviceAddressSupported)
     {
         mContext.extensions.buffer_device_address = true;
@@ -337,6 +390,15 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         vk::PhysicalDeviceFeatures2 deviceFeatures2;
         deviceFeatures2.setPNext(&mContext.linearSweptSpheresFeatures);
         mContext.physicalDevice.getFeatures2(&deviceFeatures2);
+    }
+
+    if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceEnable
+        && !mContext.extensions.NV_ray_tracing_invocation_reorder
+        && !mContext.extensions.NV_cluster_acceleration_structure
+        && !mContext.extensions.NV_cooperative_vector
+        && !mContext.extensions.NV_ray_tracing_linear_swept_spheres)
+    {
+        mContext.Info("Vulkan NVIDIA vendor extensions were force-enabled, but the native device did not expose any supported NVIDIA Vulkan extensions.");
     }
 #endif
 
@@ -622,6 +684,8 @@ bool ZWVKDevice::QueryFeatureSupport(EFeature feature, void* pInfo, size_t infoS
 
     case EFeature::FastGeometryShader:
     case EFeature::HlslExtensionUAV:
+    case EFeature::NvApiRasterizerExtensions:
+    case EFeature::NvApiShaderExtensions:
     case EFeature::SamplerFeedback:
     case EFeature::SinglePassStereo:
         return false;

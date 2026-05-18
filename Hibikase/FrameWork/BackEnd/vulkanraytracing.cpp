@@ -1645,18 +1645,32 @@ namespace HRHI
             .setAllowClusterAccelerationStructure(true);
 
         auto pipelineFlags2 = vk::PipelineCreateFlags2CreateInfoKHR();
-        pipelineFlags2.setFlags(vk::PipelineCreateFlagBits2::eRayTracingAllowSpheresAndLinearSweptSpheresNV);
+        const bool supportsSpheres = mContext.extensions.NV_ray_tracing_linear_swept_spheres && mContext.linearSweptSpheresFeatures.spheres;
+        const bool supportsLinearSweptSpheres =
+            mContext.extensions.NV_ray_tracing_linear_swept_spheres && mContext.linearSweptSpheresFeatures.linearSweptSpheres;
+        if (supportsSpheres || supportsLinearSweptSpheres)
+        {
+            pipelineFlags2.setFlags(vk::PipelineCreateFlagBits2::eRayTracingAllowSpheresAndLinearSweptSpheresNV);
+        }
 
         auto pipelineInfo = vk::RayTracingPipelineCreateInfoKHR()
             .setStages(shaderStages)
             .setGroups(shaderGroups)
             .setLayout(pso->pipelineLayout)
             .setMaxPipelineRayRecursionDepth(desc.maxRecursionDepth)
-            .setPLibraryInfo(&libraryInfo)
-            .setPNext(&pipelineFlags2);
+            .setPLibraryInfo(&libraryInfo);
+
+        if (supportsSpheres || supportsLinearSweptSpheres)
+        {
+            pipelineInfo.setPNext(&pipelineFlags2);
+        }
 
         if (mContext.extensions.NV_cluster_acceleration_structure)
         {
+            if (supportsSpheres || supportsLinearSweptSpheres)
+            {
+                pipelineClusters.setPNext(&pipelineFlags2);
+            }
             pipelineInfo.setPNext(&pipelineClusters);
         }
 

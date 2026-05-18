@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Target Name="AddBackEndThirdPartySources" BeforeTargets="ClCompile">
     <ItemGroup>
-      <ClCompile Include="ThirdParty\nvapi\nvapiwrapper.cpp" />
+      <ClCompile Include="ThirdParty\nvapi\nvapiwrapper.cpp" Condition="'$(HibikaseNvApiEnabled)' == '1'" />
       <ClCompile Include="ThirdParty\rtxmu\src\D3D12AccelStructManager.cpp" />
       <ClCompile Include="ThirdParty\rtxmu\src\D3D12Suballocator.cpp" />
       <ClCompile Include="ThirdParty\rtxmu\src\VkAccelStructManager.cpp" />

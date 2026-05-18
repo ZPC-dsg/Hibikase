@@ -8,6 +8,15 @@
     <NsightAftermathSdkDir Condition="'$(NsightAftermathSdkDir)' == '' and Exists('C:\NsightAftermathSDK\include\GFSDK_Aftermath.h')">C:\NsightAftermathSDK</NsightAftermathSdkDir>
     <NsightAftermathIncludeDir Condition="'$(NsightAftermathSdkDir)' != ''">$(NsightAftermathSdkDir)\include</NsightAftermathIncludeDir>
     <NsightAftermathLibDir Condition="'$(NsightAftermathSdkDir)' != ''">$(NsightAftermathSdkDir)\lib\x64</NsightAftermathLibDir>
+    <HibikaseNvApiHeaderPath>$(MSBuildThisFileDirectory)ThirdParty\nvapi\nvapi.h</HibikaseNvApiHeaderPath>
+    <HibikaseNvApiRequested Condition="'$(HibikaseNvApiRequested)' == '' and '$(HIBIKASE_WITH_NVAPI)' != ''">$(HIBIKASE_WITH_NVAPI)</HibikaseNvApiRequested>
+    <HibikaseNvApiRuntimePath Condition="'$(Platform)' == 'x64'">$(SystemRoot)\System32\nvapi64.dll</HibikaseNvApiRuntimePath>
+    <HibikaseNvApiRuntimePath Condition="'$(Platform)' != 'x64' and Exists('$(SystemRoot)\SysWOW64\nvapi.dll')">$(SystemRoot)\SysWOW64\nvapi.dll</HibikaseNvApiRuntimePath>
+    <HibikaseNvApiRuntimePath Condition="'$(HibikaseNvApiRuntimePath)' == '' and '$(Platform)' != 'x64'">$(SystemRoot)\System32\nvapi.dll</HibikaseNvApiRuntimePath>
+    <HibikaseNvApiEnabled Condition="'$(HibikaseNvApiRequested)' == '1' or '$(HibikaseNvApiRequested)' == 'true' or '$(HibikaseNvApiRequested)' == 'True'">1</HibikaseNvApiEnabled>
+    <HibikaseNvApiEnabled Condition="'$(HibikaseNvApiRequested)' == '0' or '$(HibikaseNvApiRequested)' == 'false' or '$(HibikaseNvApiRequested)' == 'False'">0</HibikaseNvApiEnabled>
+    <HibikaseNvApiEnabled Condition="'$(HibikaseNvApiEnabled)' == '' and Exists('$(HibikaseNvApiHeaderPath)') and Exists('$(HibikaseNvApiRuntimePath)')">1</HibikaseNvApiEnabled>
+    <HibikaseNvApiEnabled Condition="'$(HibikaseNvApiEnabled)' == ''">0</HibikaseNvApiEnabled>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -15,6 +24,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HRHI_D3D12_WITH_NVAPI=$(HibikaseNvApiEnabled);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
@@ -32,6 +42,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HRHI_D3D12_WITH_NVAPI=$(HibikaseNvApiEnabled);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
@@ -47,7 +58,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;
-NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    NOMINMAX;HRHI_D3D12_WITH_NVAPI=$(HibikaseNvApiEnabled);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
@@ -68,7 +79,7 @@ NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;
-NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    NOMINMAX;HRHI_D3D12_WITH_NVAPI=$(HibikaseNvApiEnabled);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>

@@ -98,7 +98,7 @@ namespace HRHI::HD3D12
             return nullptr;
         }
 
-        if (state.renderState.singlePassStereo.enabled && !mSinglePassStereoSupported)
+        if (state.renderState.singlePassStereo.enabled && !SupportsFeature(EFeature::SinglePassStereo))
         {
             mContext.Error("Single-pass stereo is not supported by this device.");
             return nullptr;
@@ -200,8 +200,10 @@ namespace HRHI::HD3D12
         appendShaderExtensions(state.GS.Get());
         appendShaderExtensions(state.PS.Get());
 
+        const bool hasNvapiRasterizerState = rasterState.programmableSamplePositionsEnable || rasterState.quadFillEnable;
+        const bool supportsNvapiRasterizerExtensions = SupportsFeature(EFeature::NvApiRasterizerExtensions);
         NVAPI_D3D12_PSO_RASTERIZER_STATE_DESC rasterizerDesc = {};
-        if (rasterState.programmableSamplePositionsEnable || rasterState.quadFillEnable)
+        if (supportsNvapiRasterizerExtensions && hasNvapiRasterizerState)
         {
             rasterizerDesc.baseVersion = NV_PSO_EXTENSION_DESC_VER;
             rasterizerDesc.psoExtension = NV_PSO_RASTER_EXTENSION;
@@ -214,6 +216,13 @@ namespace HRHI::HD3D12
                 ? NVAPI_QUAD_FILLMODE_BBOX
                 : NVAPI_QUAD_FILLMODE_DISABLED;
             extensions.push_back(reinterpret_cast<const NVAPI_D3D12_PSO_EXTENSION_DESC*>(&rasterizerDesc));
+        }
+
+        if (!supportsNvapiRasterizerExtensions && hasNvapiRasterizerState && mContext.messageCallback != nullptr)
+        {
+            mContext.messageCallback->message(
+                EMessageSeverity::Warning,
+                "NVAPI rasterizer extensions are unavailable on this machine and will be ignored.");
         }
 
         if (!extensions.empty())

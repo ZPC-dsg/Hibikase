@@ -419,6 +419,8 @@ namespace HRHI
         HlslExtensionUAV,
         LinearSweptSpheres,
         Meshlets,
+        NvApiRasterizerExtensions,
+        NvApiShaderExtensions,
         RayQuery,
         RayTracingAccelStruct,
         RayTracingClusters,

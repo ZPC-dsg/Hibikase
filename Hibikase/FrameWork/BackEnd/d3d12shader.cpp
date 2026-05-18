@@ -59,6 +59,33 @@ namespace HRHI::HD3D12
         std::memcpy(shader->bytecode.data(), binary, binarySize);
 
 #if HRHI_D3D12_WITH_NVAPI
+        const bool usesCustomSemantics = desc.numCustomSemantics != 0 && desc.pCustomSemantics != nullptr;
+        const bool usesCoordinateSwizzling = desc.pCoordinateSwizzling != nullptr;
+        const bool usesHlslExtensions = desc.hlslExtensionsUAV >= 0;
+        const bool usesFastGeometryShader = desc.fastGSFlags != EFastGeometryShaderFlags(0);
+        const bool usesNvapiShaderExtensions = usesCustomSemantics || usesCoordinateSwizzling || usesHlslExtensions || usesFastGeometryShader;
+
+        if (usesNvapiShaderExtensions && !SupportsFeature(EFeature::NvApiShaderExtensions))
+        {
+            delete shader;
+            mContext.Error("NVAPI shader extensions require an NVIDIA graphics device with NVAPI support.");
+            return nullptr;
+        }
+
+        if (usesHlslExtensions && !SupportsFeature(EFeature::HlslExtensionUAV))
+        {
+            delete shader;
+            mContext.Error("NVAPI HLSL extensions are unavailable on this machine.");
+            return nullptr;
+        }
+
+        if ((usesCoordinateSwizzling || usesFastGeometryShader) && !SupportsFeature(EFeature::FastGeometryShader))
+        {
+            delete shader;
+            mContext.Error("NVAPI fast geometry shader extensions are unavailable on this machine.");
+            return nullptr;
+        }
+
         if (desc.numCustomSemantics != 0 && desc.pCustomSemantics != nullptr)
         {
             if (!ConvertCustomSemantics(desc.numCustomSemantics, desc.pCustomSemantics, shader->customSemantics))

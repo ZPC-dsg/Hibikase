@@ -12,6 +12,7 @@
 
 #include <chrono>
 #include <cstdlib>
+#include <cctype>
 #include <string>
 #include <thread>
 #include <vector>
@@ -45,6 +46,105 @@ namespace HRHI
 namespace
 {
 
+enum class ECommandLineNvApiMode
+{
+    Auto,
+    ForceEnable,
+    ForceDisable
+};
+
+constexpr const char* cRuntimeNvApiEnvironmentVariable = "HIBIKASE_RUNTIME_NVAPI";
+
+const char* ToNvApiModeName(const ECommandLineNvApiMode mode)
+{
+    switch (mode)
+    {
+    case ECommandLineNvApiMode::ForceEnable:
+        return "force-enable";
+    case ECommandLineNvApiMode::ForceDisable:
+        return "force-disable";
+    case ECommandLineNvApiMode::Auto:
+    default:
+        return "auto";
+    }
+}
+
+std::string GetRuntimeNvApiOverrideValue()
+{
+    char* value = nullptr;
+    size_t valueLength = 0;
+    if (_dupenv_s(&value, &valueLength, cRuntimeNvApiEnvironmentVariable) != 0 || value == nullptr)
+    {
+        return "auto";
+    }
+
+    std::string result(value);
+    free(value);
+    return result;
+}
+
+bool TryParseNvApiMode(const std::string& value, ECommandLineNvApiMode& outMode)
+{
+    std::string normalizedValue = value;
+    std::transform(
+        normalizedValue.begin(),
+        normalizedValue.end(),
+        normalizedValue.begin(),
+        [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+
+    if (normalizedValue == "auto")
+    {
+        outMode = ECommandLineNvApiMode::Auto;
+        return true;
+    }
+
+    if (normalizedValue == "on"
+        || normalizedValue == "enable"
+        || normalizedValue == "enabled"
+        || normalizedValue == "force-on"
+        || normalizedValue == "force-enable"
+        || normalizedValue == "1"
+        || normalizedValue == "true")
+    {
+        outMode = ECommandLineNvApiMode::ForceEnable;
+        return true;
+    }
+
+    if (normalizedValue == "off"
+        || normalizedValue == "disable"
+        || normalizedValue == "disabled"
+        || normalizedValue == "force-off"
+        || normalizedValue == "force-disable"
+        || normalizedValue == "0"
+        || normalizedValue == "false")
+    {
+        outMode = ECommandLineNvApiMode::ForceDisable;
+        return true;
+    }
+
+    return false;
+}
+
+void ApplyNvApiMode(const ECommandLineNvApiMode mode)
+{
+    const char* value = nullptr;
+    switch (mode)
+    {
+    case ECommandLineNvApiMode::ForceEnable:
+        value = "1";
+        break;
+    case ECommandLineNvApiMode::ForceDisable:
+        value = "0";
+        break;
+    case ECommandLineNvApiMode::Auto:
+    default:
+        value = "auto";
+        break;
+    }
+
+    _putenv_s(cRuntimeNvApiEnvironmentVariable, value);
+}
+
 const char* ToBackendName(HApp::ZWGraphicsBackend graphicsBackend)
 {
     switch (graphicsBackend)
@@ -55,6 +155,22 @@ const char* ToBackendName(HApp::ZWGraphicsBackend graphicsBackend)
         return "Vulkan";
     default:
         return "None";
+    }
+}
+
+HApp::ZWGraphicsBackend ToBackEndAPI(const std::string& name)
+{
+    if (name == "D3D12" || name == "d3d12" || name == "dx12")
+    {
+        return HApp::ZWGraphicsBackend::D3D12;
+    }
+    else if (name == "Vulkan" || name == "vulkan")
+    {
+        return HApp::ZWGraphicsBackend::Vulkan;
+    }
+    else
+    {
+        return HApp::ZWGraphicsBackend::None;
     }
 }
 
@@ -69,41 +185,90 @@ void PrintControls()
     HApp::ZWConsoleLogger::PrintListItem("ESC               close the active demo window");
 }
 
-int ParseSelfTestDurationMs(int argc, char** argv)
+int ParseCommandLineArgs(int argc, char** argv, HApp::ZWWindowDesc& windowDesc)
 {
+    ECommandLineNvApiMode nvapiMode = ECommandLineNvApiMode::Auto;
+    int selfTestDurationMs = 0;
+
     for (int argumentIndex = 1; argumentIndex < argc; ++argumentIndex)
     {
         const std::string argument = argv[argumentIndex];
-        const std::string prefix = "--self-test-ms=";
+        std::string prefix = "--self-test-ms=";
         if (argument.rfind(prefix, 0) == 0)
         {
-            return std::max(0, std::atoi(argument.substr(prefix.size()).c_str()));
+            selfTestDurationMs = std::max(0, std::atoi(argument.substr(prefix.size()).c_str()));
+            continue;
+        }
+        prefix = "--backend=";
+        if (argument.rfind(prefix, 0) == 0)
+        {
+            const std::string backendName = argument.substr(prefix.size());
+            HApp::ZWGraphicsBackend backend = ToBackEndAPI(backendName);
+            if (backend != HApp::ZWGraphicsBackend::None)
+            {
+                windowDesc.graphicsBackend = backend;
+            }
+            else
+            {
+                HApp::ZWConsoleLogger::Warning("No backend named {} supported!Fallback to D3D12 instead.", backendName);
+            }
+        }
+
+        prefix = "--nvapi=";
+        if (argument.rfind(prefix, 0) == 0)
+        {
+            const std::string nvapiModeName = argument.substr(prefix.size());
+            if (!TryParseNvApiMode(nvapiModeName, nvapiMode))
+            {
+                HApp::ZWConsoleLogger::Warning("Unknown NVAPI mode '{}', falling back to auto.", nvapiModeName);
+                nvapiMode = ECommandLineNvApiMode::Auto;
+            }
+        }
+
+        if (argument == "--enable-nvapi")
+        {
+            nvapiMode = ECommandLineNvApiMode::ForceEnable;
+        }
+
+        if (argument == "--disable-nvapi")
+        {
+            nvapiMode = ECommandLineNvApiMode::ForceDisable;
         }
 
         if (argument == "--self-test")
         {
-            return 2000;
+            selfTestDurationMs = 2000;
         }
     }
 
-    return 0;
+    ApplyNvApiMode(nvapiMode);
+
+    return selfTestDurationMs;
 }
 
 }
 
 int main(int argc, char** argv)
 {
-    // ´¦ÀíCRTÄÚ´æÐ¹Â¶
+    // ï¿½ï¿½ï¿½ï¿½CRTï¿½Ú´ï¿½Ð¹Â¶
 #if defined(_DEBUG) || defined(DEBUG)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    // TODO £ºCreate Scene
+    // TODO ï¿½ï¿½Create Scene
 
-    const int selfTestDurationMs = ParseSelfTestDurationMs(argc, argv);
+    HApp::ZWWindowDesc mainWindowDesc;
+    mainWindowDesc.width = 1280;
+    mainWindowDesc.height = 720;
+    mainWindowDesc.title = "Hibikase Main Window";
+    mainWindowDesc.graphicsBackend = HApp::ZWGraphicsBackend::D3D12;
+    mainWindowDesc.role = HApp::ZWWindowRole::Main;
+
+    const int selfTestDurationMs = ParseCommandLineArgs(argc, argv, mainWindowDesc);
     HApp::ZWConsoleLogger::Initialize();
     HApp::ZWConsoleLogger::PrintBanner("HIBIKASE RUNTIME");
     HApp::ZWConsoleLogger::PrintSection("Startup");
+    HApp::ZWConsoleLogger::PrintProperty("NVAPI override", GetRuntimeNvApiOverrideValue());
 
     HApp::ZWWindowManager windowManager;
     if (!windowManager.Initialize())
@@ -116,12 +281,6 @@ int main(int argc, char** argv)
     HApp::ZWConsoleLogger::PrintProperty("Window manager", "ready");
     HApp::ZWConsoleLogger::PrintProperty("Vulkan surface support", windowManager.IsVulkanSupported() ? "available" : "unavailable");
 
-    HApp::ZWWindowDesc mainWindowDesc;
-    mainWindowDesc.width = 1280;
-    mainWindowDesc.height = 720;
-    mainWindowDesc.title = "Hibikase Main Window";
-    mainWindowDesc.graphicsBackend = HApp::ZWGraphicsBackend::D3D12;
-    mainWindowDesc.role = HApp::ZWWindowRole::Main;
 
     HApp::ZWWindow* mainWindow = windowManager.CreateWindow(mainWindowDesc);
     if (mainWindow == nullptr)

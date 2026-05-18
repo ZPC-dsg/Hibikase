@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -15,6 +16,45 @@ namespace HRHI::HD3D12
 {
     namespace
     {
+        enum class ENvApiRuntimeMode
+        {
+            Auto,
+            ForceEnable,
+            ForceDisable
+        };
+
+        constexpr const char* cRuntimeNvApiEnvironmentVariable = "HIBIKASE_RUNTIME_NVAPI";
+
+        ENvApiRuntimeMode GetNvApiRuntimeMode()
+        {
+            char* value = nullptr;
+            size_t valueLength = 0;
+            if (_dupenv_s(&value, &valueLength, cRuntimeNvApiEnvironmentVariable) != 0 || value == nullptr)
+            {
+                return ENvApiRuntimeMode::Auto;
+            }
+
+            std::string normalizedValue(value);
+            free(value);
+            std::transform(
+                normalizedValue.begin(),
+                normalizedValue.end(),
+                normalizedValue.begin(),
+                [](unsigned char character) { return static_cast<char>(std::tolower(character)); });
+
+            if (normalizedValue == "1" || normalizedValue == "true" || normalizedValue == "enable" || normalizedValue == "enabled")
+            {
+                return ENvApiRuntimeMode::ForceEnable;
+            }
+
+            if (normalizedValue == "0" || normalizedValue == "false" || normalizedValue == "disable" || normalizedValue == "disabled")
+            {
+                return ENvApiRuntimeMode::ForceDisable;
+            }
+
+            return ENvApiRuntimeMode::Auto;
+        }
+
         void DispatchMessage(IMessageCallback* messageCallback, EMessageSeverity severity, const std::string& message)
         {
             if (messageCallback != nullptr)
@@ -267,7 +307,28 @@ namespace HRHI::HD3D12
         mCommandListsToExecute.reserve(64);
 
 #if HRHI_D3D12_WITH_NVAPI
-        mNvapiIsInitialized = NvAPI_Initialize() == NVAPI_OK;
+        const ENvApiRuntimeMode nvapiRuntimeMode = GetNvApiRuntimeMode();
+        if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceDisable)
+        {
+            mContext.Info("NVAPI is disabled by a command line override.");
+        }
+        else
+        {
+            const NvAPI_Status nvapiStatus = NvAPI_Initialize();
+            mNvapiIsInitialized = nvapiStatus == NVAPI_OK;
+
+            if (!mNvapiIsInitialized)
+            {
+                if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceEnable)
+                {
+                    mContext.Info("NVAPI force-enable was requested, but initialization failed. NVAPI-specific features are disabled.");
+                }
+                else
+                {
+                    mContext.Info("NVAPI is unavailable on this machine. NVAPI-specific features are disabled.");
+                }
+            }
+        }
 
         if (mNvapiIsInitialized)
         {
@@ -384,6 +445,11 @@ namespace HRHI::HD3D12
             NvAPI_D3D12_SetCreatePipelineStateOptions(mContext.device5.Get(), &params);
         }
 #endif
+#else
+        if (GetNvApiRuntimeMode() == ENvApiRuntimeMode::ForceEnable)
+        {
+            mContext.Info("NVAPI force-enable was requested, but this build does not include NVAPI support.");
+        }
 #endif
 
         if (desc.enableHeapDirectlyIndexed)
@@ -642,6 +708,10 @@ namespace HRHI::HD3D12
 
         case EFeature::FastGeometryShader:
             return mFastGeometryShaderSupported;
+
+        case EFeature::NvApiRasterizerExtensions:
+        case EFeature::NvApiShaderExtensions:
+            return mNvapiIsInitialized;
 
         case EFeature::ShaderExecutionReordering:
             return mShaderExecutionReorderingSupported;

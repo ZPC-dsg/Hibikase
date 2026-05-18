@@ -1259,10 +1259,13 @@ namespace HRHI
             ZWD3D12Context& GetContext() { return mContext; }
 
             bool SetHlslExtensionsUAV(uint32_t slot);
+            bool SupportsFeature(EFeature feature) const { return const_cast<ZWD3D12Device*>(this)->QueryFeatureSupport(feature); }
 
             bool GetAccelStructPreBuildInfo(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO& outPreBuildInfo, const Hrt::ZWAccelStructDesc& desc) const;
 
             bool GetNvapiIsInitialized() const { return mNvapiIsInitialized; }
+            bool GetNvapiShaderExtensionsSupported() const { return mNvapiIsInitialized && mHlslExtensionsSupported; }
+            bool GetNvapiFastGeometryShaderSupported() const { return mNvapiIsInitialized && mFastGeometryShaderSupported; }
             bool GetOpacityMicromapSupported() const { return mOpacityMicromapSupported; }
             bool GetLinearSweptSpheresSupported() const { return mLinearSweptSpheresSupported; }
             bool GetSpheresSupported() const { return mSpheresSupported; }

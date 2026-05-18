@@ -1251,7 +1251,7 @@ namespace HRHI::HD3D12
     bool ZWD3D12Device::SetHlslExtensionsUAV(uint32_t slot)
     {
 #if HRHI_D3D12_WITH_NVAPI
-        if (GetNvapiIsInitialized())
+        if (SupportsFeature(EFeature::HlslExtensionUAV))
         {
             const NvAPI_Status status = NvAPI_D3D12_SetNvShaderExtnSlotSpaceLocalThread(mContext.device.Get(), slot, 0);
             if (status != NVAPI_OK)
@@ -1263,7 +1263,7 @@ namespace HRHI::HD3D12
             return true;
         }
 
-        mContext.Error("HLSL extensions require an NVIDIA graphics device with NVAPI support.");
+        mContext.Error("NVAPI HLSL extensions are unavailable on this machine.");
         return false;
 #else
         (void)slot;
