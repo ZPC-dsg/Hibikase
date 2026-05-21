@@ -112,6 +112,7 @@ namespace HRHI::HD3D12
         pipelineStateDesc.GS = GetShaderBytecode(state.GS.Get());
         pipelineStateDesc.PS = GetShaderBytecode(state.PS.Get());
 
+        ValidateBlendState(const_cast<ZWGraphicsPipelineDesc&>(state).renderState.blendState);
         TranslateBlendState(state.renderState.blendState, pipelineStateDesc.BlendState);
 
         const ZWDepthStencilState& depthState = state.renderState.depthStencilState;
@@ -381,7 +382,7 @@ namespace HRHI::HD3D12
     void TranslateBlendState(const ZWBlendState& inState, D3D12_BLEND_DESC& outState)
     {
         outState.AlphaToCoverageEnable = inState.alphaToCoverageEnable ? TRUE : FALSE;
-        outState.IndependentBlendEnable = TRUE;
+        outState.IndependentBlendEnable = inState.independentBlendEnabled ? TRUE : FALSE;
 
         for (uint32_t index = 0; index < gMaxRenderTargets; ++index)
         {
@@ -389,17 +390,39 @@ namespace HRHI::HD3D12
             D3D12_RENDER_TARGET_BLEND_DESC& target = outState.RenderTarget[index];
 
             target.BlendEnable = source.blendEnable ? TRUE : FALSE;
-            target.LogicOpEnable = FALSE;
+            target.LogicOpEnable = target.LogicOpEnable ? TRUE : FALSE;
             target.SrcBlend = ConvertBlendValue(source.srcBlend);
             target.DestBlend = ConvertBlendValue(source.destBlend);
             target.BlendOp = ConvertBlendOp(source.blendOp);
             target.SrcBlendAlpha = ConvertBlendValue(source.srcBlendAlpha);
             target.DestBlendAlpha = ConvertBlendValue(source.destBlendAlpha);
             target.BlendOpAlpha = ConvertBlendOp(source.blendOpAlpha);
-            target.LogicOp = D3D12_LOGIC_OP_NOOP;
+            target.LogicOp = ConvertLogicOp(source.logicBlendOp);
             target.RenderTargetWriteMask = static_cast<D3D12_COLOR_WRITE_ENABLE>(source.colorWriteMask);
         }
     }
+
+    // https://learn.microsoft.com/en-us/windows/win32/api/d3d12/ns-d3d12-d3d12_blend_desc
+    void ValidateBlendState(ZWBlendState& state)
+    {
+        if (state.targets[0].logicBlendEnable)
+        {
+            state.disableIndependentBlend();
+            ELogicOp logicOp = state.targets[0].logicBlendOp;
+            for (ZWBlendState::ZWRenderTarget& target : state.targets)
+            {
+                target.disableBlend().enableLogicBlend().setLogicBlendOp(logicOp);
+            }
+        }
+        else
+        {
+            for (ZWBlendState::ZWRenderTarget& target : state.targets)
+            {
+                target.disableLogicBlend().setLogicBlendOp(ELogicOp::Noop);
+            }
+        }
+    }
+
 
     void TranslateDepthStencilState(const ZWDepthStencilState& inState, D3D12_DEPTH_STENCIL_DESC& outState)
     {

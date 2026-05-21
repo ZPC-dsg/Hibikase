@@ -1648,12 +1648,14 @@ namespace std
         {
             size_t hash = 0;
             HRHI::hash_combine(hash, s.blendEnable);
+            HRHI::hash_combine(hash, s.logicBlendEnable);
             HRHI::hash_combine(hash, s.srcBlend);
             HRHI::hash_combine(hash, s.destBlend);
             HRHI::hash_combine(hash, s.blendOp);
             HRHI::hash_combine(hash, s.srcBlendAlpha);
             HRHI::hash_combine(hash, s.destBlendAlpha);
             HRHI::hash_combine(hash, s.blendOpAlpha);
+            HRHI::hash_combine(hash, s.logicBlendOp);
             HRHI::hash_combine(hash, s.colorWriteMask);
             return hash;
         }
@@ -1665,6 +1667,7 @@ namespace std
         {
             size_t hash = 0;
             HRHI::hash_combine(hash, s.alphaToCoverageEnable);
+            HRHI::hash_combine(hash, s.independentBlendEnabled);
             for (const auto& target : s.targets)
                 HRHI::hash_combine(hash, target);
             return hash;

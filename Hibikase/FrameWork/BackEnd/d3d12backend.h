@@ -110,6 +110,7 @@ namespace HRHI
         D3D12_SHADER_VISIBILITY ConvertShaderStage(EShaderType s);
         D3D12_BLEND ConvertBlendValue(EBlendFactor value);
         D3D12_BLEND_OP ConvertBlendOp(EBlendOp value);
+        D3D12_LOGIC_OP ConvertLogicOp(ELogicOp value);
         D3D12_STENCIL_OP ConvertStencilOp(EStencilOp value);
         D3D12_COMPARISON_FUNC ConvertComparisonFunc(EComparisonFunc value);
         D3D_PRIMITIVE_TOPOLOGY ConvertPrimitiveType(EPrimitiveType pt, uint32_t controlPoints);
@@ -125,9 +126,12 @@ namespace HRHI
 
         void WaitForFence(ID3D12Fence* fence, uint64_t value, HANDLE event);
         uint32_t CalcSubresource(uint32_t MipSlice, uint32_t ArraySlice, uint32_t PlaneSlice, uint32_t MipLevels, uint32_t ArraySize);
+
         void TranslateBlendState(const ZWBlendState& inState, D3D12_BLEND_DESC& outState);
         void TranslateDepthStencilState(const ZWDepthStencilState& inState, D3D12_DEPTH_STENCIL_DESC& outState);
         void TranslateRasterizerState(const ZWRasterState& inState, D3D12_RASTERIZER_DESC& outState);
+
+        void ValidateBlendState(ZWBlendState& state);
 
         struct ZWD3D12Context
         {

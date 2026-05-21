@@ -280,6 +280,74 @@ namespace HRHI
         Max = 5
     };
 
+    // Only available for D3D12
+    enum class ELogicOp : uint8_t
+    {
+        /// Clear the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_CLEAR.
+        Clear = 0,
+
+        /// Set the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_SET.
+        Set,
+
+        /// Copy the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_COPY.
+        Copy,
+
+        /// Perform an inverted-copy of the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_COPY_INVERTED.
+        CopyInverted,
+
+        /// No operation is performed on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_NOOP.
+        Noop,
+
+        /// Invert the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_INVERT.
+        Invert,
+
+        /// Perform a logical AND operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_AND.
+        And,
+
+        /// Perform a logical NAND operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_NAND.
+        Nand,
+
+        /// Perform a logical OR operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_OR.
+        Or,
+
+        /// Perform a logical NOR operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_NOR.
+        Nor,
+
+        /// Perform a logical XOR operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_XOR.
+        Xor,
+
+        /// Perform a logical equal operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_EQUIV.
+        Equiv,
+
+        /// Perform a logical AND and reverse operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_AND_REVERSE.
+        AndReverse,
+
+        /// Perform a logical AND and invert operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_AND_INVERTED.
+        AndInverted,
+
+        /// Perform a logical OR and reverse operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_OR_REVERSE.
+        OrReverse,
+
+        /// Perform a logical OR and invert operation on the render target.\n
+        /// Direct3D12 counterpart: D3D12_LOGIC_OP_OR_INVERTED.
+        OrInverted
+    };
+
     enum class EColorMask : uint8_t
     {
         Red = 1,

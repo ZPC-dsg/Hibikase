@@ -87,6 +87,47 @@ namespace HRHI::HD3D12
         }
     }
 
+    D3D12_LOGIC_OP ConvertLogicOp(ELogicOp value)
+    {
+        switch (value)
+        {
+        case ELogicOp::And:
+            return D3D12_LOGIC_OP_AND;
+        case ELogicOp::AndInverted:
+            return D3D12_LOGIC_OP_AND_INVERTED;
+        case ELogicOp::AndReverse:
+            return D3D12_LOGIC_OP_AND_REVERSE;
+        case ELogicOp::Clear:
+            return D3D12_LOGIC_OP_CLEAR;
+        case ELogicOp::Copy:
+            return D3D12_LOGIC_OP_COPY;
+        case ELogicOp::CopyInverted:
+            return D3D12_LOGIC_OP_COPY_INVERTED;
+        case ELogicOp::Equiv:
+            return D3D12_LOGIC_OP_EQUIV;
+        case ELogicOp::Invert:
+            return D3D12_LOGIC_OP_INVERT;
+        case ELogicOp::Nand:
+            return D3D12_LOGIC_OP_NAND;
+        case ELogicOp::Noop:
+            return D3D12_LOGIC_OP_NOOP;
+        case ELogicOp::Nor:
+            return D3D12_LOGIC_OP_NOR;
+        case ELogicOp::Or:
+            return D3D12_LOGIC_OP_OR;
+        case ELogicOp::OrInverted:
+            return D3D12_LOGIC_OP_OR_INVERTED;
+        case ELogicOp::OrReverse:
+            return D3D12_LOGIC_OP_OR_REVERSE;
+        case ELogicOp::Set:
+            return D3D12_LOGIC_OP_SET;
+        case ELogicOp::Xor:
+            return D3D12_LOGIC_OP_XOR;
+        default:
+            return D3D12_LOGIC_OP_NOOP;
+        }
+    }
+
     D3D12_STENCIL_OP ConvertStencilOp(EStencilOp value)
     {
         switch (value)

@@ -151,6 +151,7 @@ namespace HRHI::HD3D12
 
         pipelineStateStream.rootSignature = rootSignature->handle.Get();
 
+        ValidateBlendState(const_cast<ZWMeshletPipelineDesc&>(desc).renderState.blendState);
         TranslateBlendState(desc.renderState.blendState, pipelineStateStream.blendState);
 
         const ZWDepthStencilState& depthState = desc.renderState.depthStencilState;

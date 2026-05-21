@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)\bin\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir>$(SolutionDir)\bin\int\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-    <TrackFileAccess>false</TrackFileAccess>
+    <TrackFileAccess>true</TrackFileAccess>
     <NsightAftermathSdkDir Condition="'$(NSIGHT_AFTERMATH_SDK)' != '' and Exists('$(NSIGHT_AFTERMATH_SDK)\include\GFSDK_Aftermath.h')">$(NSIGHT_AFTERMATH_SDK)</NsightAftermathSdkDir>
     <NsightAftermathSdkDir Condition="'$(NsightAftermathSdkDir)' == '' and Exists('C:\NsightAftermathSDK\include\GFSDK_Aftermath.h')">C:\NsightAftermathSDK</NsightAftermathSdkDir>
     <NsightAftermathIncludeDir Condition="'$(NsightAftermathSdkDir)' != ''">$(NsightAftermathSdkDir)\include</NsightAftermathIncludeDir>
@@ -20,7 +20,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -28,15 +28,15 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
     <Link>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -46,15 +46,15 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Lib>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
     <Link>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN;
@@ -65,15 +65,15 @@
       <AdditionalIncludeDirectories>$(NsightAftermathIncludeDir);FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
     <Link>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
       <WarningLevel>Level3</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -86,10 +86,10 @@
       <AdditionalIncludeDirectories>$(NsightAftermathIncludeDir);FrameWork;ThirdParty\imgui;ThirdParty\imgui\backends;ThirdParty\glfw\glfw-3.4.bin.WIN64\glfw-3.4.bin.WIN64\include;ThirdParty\glfw\glad\include;ThirdParty\glfw\glad\include\glm-1.0.1-light;ThirdParty\spdlog\include;ThirdParty\robin\include;ThirdParty\tinygltf;ThirdParty\nvapi;ThirdParty\rtxmu\include;$(VK_SDK_PATH)\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Lib>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Lib>
     <Link>
-      <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+      <MinimalRebuildFromTracking>true</MinimalRebuildFromTracking>
     </Link>
   </ItemDefinitionGroup>
 </Project>

@@ -369,23 +369,29 @@ namespace HRHI
         struct ZWRenderTarget
         {
             bool        blendEnable = false;
+            bool        logicBlendEnable = false;
             EBlendFactor srcBlend = EBlendFactor::One;
             EBlendFactor destBlend = EBlendFactor::Zero;
             EBlendOp     blendOp = EBlendOp::Add;
             EBlendFactor srcBlendAlpha = EBlendFactor::One;
             EBlendFactor destBlendAlpha = EBlendFactor::Zero;
             EBlendOp     blendOpAlpha = EBlendOp::Add;
+            ELogicOp     logicBlendOp = ELogicOp::Noop;
             EColorMask   colorWriteMask = EColorMask::All;
 
             constexpr ZWRenderTarget& setBlendEnable(bool enable) { blendEnable = enable; return *this; }
+            constexpr ZWRenderTarget& setLogicBlendEnable(bool enable) { logicBlendEnable = enable; return *this; }
             constexpr ZWRenderTarget& enableBlend() { blendEnable = true; return *this; }
             constexpr ZWRenderTarget& disableBlend() { blendEnable = false; return *this; }
+            constexpr ZWRenderTarget& enableLogicBlend() { logicBlendEnable = true; return *this; }
+            constexpr ZWRenderTarget& disableLogicBlend() { logicBlendEnable = false; return *this; }
             constexpr ZWRenderTarget& setSrcBlend(EBlendFactor value) { srcBlend = value; return *this; }
             constexpr ZWRenderTarget& setDestBlend(EBlendFactor value) { destBlend = value; return *this; }
             constexpr ZWRenderTarget& setBlendOp(EBlendOp value) { blendOp = value; return *this; }
             constexpr ZWRenderTarget& setSrcBlendAlpha(EBlendFactor value) { srcBlendAlpha = value; return *this; }
             constexpr ZWRenderTarget& setDestBlendAlpha(EBlendFactor value) { destBlendAlpha = value; return *this; }
             constexpr ZWRenderTarget& setBlendOpAlpha(EBlendOp value) { blendOpAlpha = value; return *this; }
+            constexpr ZWRenderTarget& setLogicBlendOp(ELogicOp value) { logicBlendOp = value; return *this; }
             constexpr ZWRenderTarget& setColorWriteMask(EColorMask value) { colorWriteMask = value; return *this; }
 
             [[nodiscard]] bool usesConstantColor() const;
@@ -393,12 +399,14 @@ namespace HRHI
             constexpr bool operator ==(const ZWRenderTarget& other) const
             {
                 return blendEnable == other.blendEnable
+                    && logicBlendEnable == other.logicBlendEnable
                     && srcBlend == other.srcBlend
                     && destBlend == other.destBlend
                     && blendOp == other.blendOp
                     && srcBlendAlpha == other.srcBlendAlpha
                     && destBlendAlpha == other.destBlendAlpha
                     && blendOpAlpha == other.blendOpAlpha
+                    && logicBlendOp == other.logicBlendOp
                     && colorWriteMask == other.colorWriteMask;
             }
 
@@ -410,17 +418,22 @@ namespace HRHI
 
         ZWRenderTarget targets[gMaxRenderTargets];
         bool alphaToCoverageEnable = false;
+        bool independentBlendEnabled = false;
 
         constexpr ZWBlendState& setRenderTarget(uint32_t index, const ZWRenderTarget& target) { targets[index] = target; return *this; }
         constexpr ZWBlendState& setAlphaToCoverageEnable(bool enable) { alphaToCoverageEnable = enable; return *this; }
+        constexpr ZWBlendState& setIndependentBlendEnable(bool enable) { independentBlendEnabled = enable; return *this; }
         constexpr ZWBlendState& enableAlphaToCoverage() { alphaToCoverageEnable = true; return *this; }
         constexpr ZWBlendState& disableAlphaToCoverage() { alphaToCoverageEnable = false; return *this; }
+        constexpr ZWBlendState& enableIndependentBlend() { independentBlendEnabled = true; return *this; }
+        constexpr ZWBlendState& disableIndependentBlend() { independentBlendEnabled = false; return *this; }
+
 
         [[nodiscard]] bool usesConstantColor(uint32_t numTargets) const;
 
         constexpr bool operator ==(const ZWBlendState& other) const
         {
-            if (alphaToCoverageEnable != other.alphaToCoverageEnable)
+            if (alphaToCoverageEnable != other.alphaToCoverageEnable || independentBlendEnabled != other.independentBlendEnabled)
                 return false;
 
             for (uint32_t i = 0; i < gMaxRenderTargets; ++i)
