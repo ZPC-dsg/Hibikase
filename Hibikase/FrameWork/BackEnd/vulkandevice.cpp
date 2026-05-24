@@ -86,6 +86,93 @@ std::string FormatVkResult(vk::Result result)
     return stream.str();
 }
 
+std::string FormatVulkanHeaderVersion()
+{
+#if defined(VK_HEADER_VERSION_COMPLETE)
+    std::ostringstream stream;
+    stream << VK_API_VERSION_MAJOR(VK_HEADER_VERSION_COMPLETE)
+        << '.'
+        << VK_API_VERSION_MINOR(VK_HEADER_VERSION_COMPLETE)
+        << '.'
+        << VK_API_VERSION_PATCH(VK_HEADER_VERSION_COMPLETE);
+    return stream.str();
+#else
+    std::ostringstream stream;
+    stream << "patch " << VK_HEADER_VERSION;
+    return stream.str();
+#endif
+}
+
+std::string JoinExtensionNames(const std::vector<const char*>& extensionNames)
+{
+    std::ostringstream stream;
+    for (size_t extensionIndex = 0; extensionIndex < extensionNames.size(); ++extensionIndex)
+    {
+        if (extensionIndex != 0)
+        {
+            stream << ", ";
+        }
+
+        stream << extensionNames[extensionIndex];
+    }
+
+    return stream.str();
+}
+
+std::vector<const char*> GetCompiledOutNvVulkanExtensions()
+{
+    std::vector<const char*> extensionNames;
+
+#if !HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
+    extensionNames.push_back("VK_NV_ray_tracing_invocation_reorder");
+#endif
+
+#if !HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
+    extensionNames.push_back("VK_NV_cluster_acceleration_structure");
+#endif
+
+#if !HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
+    extensionNames.push_back("VK_NV_cooperative_vector");
+#endif
+
+#if !HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+    extensionNames.push_back("VK_NV_ray_tracing_linear_swept_spheres");
+#endif
+
+    return extensionNames;
+}
+
+void WarnAboutOldVulkanHeaders(HRHI::IMessageCallback* messageCallback, ENvApiRuntimeMode nvapiRuntimeMode)
+{
+#if !HRHI_VULKAN_HAS_RECOMMENDED_SDK_HEADERS
+    static std::once_flag sWarningOnce;
+    std::call_once(sWarningOnce, [messageCallback, nvapiRuntimeMode]()
+    {
+        std::ostringstream stream;
+        stream << "Detected Vulkan SDK headers " << FormatVulkanHeaderVersion()
+            << ", which is older than the recommended 1.4.318 SDK. "
+            << "The Vulkan backend will keep compiling and running with fallback logic.";
+
+        const std::vector<const char*> compiledOutExtensions = GetCompiledOutNvVulkanExtensions();
+        if (!compiledOutExtensions.empty())
+        {
+            stream << " NVIDIA extension paths compiled out by the current headers: "
+                << JoinExtensionNames(compiledOutExtensions) << '.';
+        }
+
+        if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceEnable)
+        {
+            stream << " `--enable-nvapi` cannot re-enable extension paths that were compiled out by the SDK headers.";
+        }
+
+        DispatchMessage(messageCallback, HRHI::EMessageSeverity::Warning, stream.str());
+    });
+#else
+    (void)messageCallback;
+    (void)nvapiRuntimeMode;
+#endif
+}
+
 }
 
 namespace HRHI::HVulkan
@@ -189,6 +276,12 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
 {
     assert(desc.device != nullptr);
 
+    mContext.messageCallback = desc.errorCB;
+    mContext.logBufferLifetime = desc.logBufferLifetime;
+
+    const ENvApiRuntimeMode nvapiRuntimeMode = GetNvApiRuntimeMode();
+    WarnAboutOldVulkanHeaders(mContext.messageCallback, nvapiRuntimeMode);
+
     if (desc.graphicsQueue != nullptr)
     {
         mQueues[uint32_t(ECommandQueue::Graphics)] = std::make_unique<ZWVKQueue>(
@@ -229,16 +322,21 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         { VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, &mContext.extensions.KHR_ray_tracing_pipeline },
         { VK_EXT_MESH_SHADER_EXTENSION_NAME, &mContext.extensions.EXT_mesh_shader },
         { VK_EXT_MUTABLE_DESCRIPTOR_TYPE_EXTENSION_NAME, &mContext.extensions.EXT_mutable_descriptor_type },
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
         { VK_NV_RAY_TRACING_INVOCATION_REORDER_EXTENSION_NAME, &mContext.extensions.NV_ray_tracing_invocation_reorder },
+#endif
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
         { VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME, &mContext.extensions.NV_cluster_acceleration_structure },
+#endif
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
         { VK_NV_COOPERATIVE_VECTOR_EXTENSION_NAME, &mContext.extensions.NV_cooperative_vector },
+#endif
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
         { VK_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES_EXTENSION_NAME, &mContext.extensions.NV_ray_tracing_linear_swept_spheres },
-
+#endif
 #if HRHI_WITH_AFTERMATH
     { VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME, &mContext.extensions.NV_device_diagnostic_checkpoints },
     { VK_NV_DEVICE_DIAGNOSTICS_CONFIG_EXTENSION_NAME, &mContext.extensions.NV_device_diagnostics_config },
-#endif
 #endif
     };
 
@@ -266,17 +364,23 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         }
     }
 
-#if HRHI_VULKAN_NV
-    const ENvApiRuntimeMode nvapiRuntimeMode = GetNvApiRuntimeMode();
     if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceDisable)
     {
+        const bool hadNvVendorExtensions =
+            mContext.extensions.NV_ray_tracing_invocation_reorder
+            || mContext.extensions.NV_cluster_acceleration_structure
+            || mContext.extensions.NV_cooperative_vector
+            || mContext.extensions.NV_ray_tracing_linear_swept_spheres;
+
         mContext.extensions.NV_ray_tracing_invocation_reorder = false;
         mContext.extensions.NV_cluster_acceleration_structure = false;
         mContext.extensions.NV_cooperative_vector = false;
         mContext.extensions.NV_ray_tracing_linear_swept_spheres = false;
-        mContext.Info("Vulkan NVIDIA vendor extensions are disabled by a command line override.");
+        if (hadNvVendorExtensions)
+        {
+            mContext.Info("Vulkan NVIDIA vendor extensions are disabled by a command line override.");
+        }
     }
-#endif
 
     if (desc.bufferDeviceAddressSupported)
     {
@@ -289,9 +393,13 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
     vk::PhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties;
     vk::PhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties;
     vk::PhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
     vk::PhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
     vk::PhysicalDeviceClusterAccelerationStructurePropertiesNV nvClusterAccelerationStructureProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     vk::PhysicalDeviceCooperativeVectorPropertiesNV coopVecProperties;
 #endif
     vk::PhysicalDeviceSubgroupProperties subgroupProperties;
@@ -331,19 +439,23 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         next = &opacityMicromapProperties;
     }
 
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
     if (mContext.extensions.NV_ray_tracing_invocation_reorder)
     {
         nvRayTracingInvocationReorderProperties.pNext = next;
         next = &nvRayTracingInvocationReorderProperties;
     }
+#endif
 
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
     if (mContext.extensions.NV_cluster_acceleration_structure)
     {
         nvClusterAccelerationStructureProperties.pNext = next;
         next = &nvClusterAccelerationStructureProperties;
     }
+#endif
 
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     if (mContext.extensions.NV_cooperative_vector)
     {
         coopVecProperties.pNext = next;
@@ -361,14 +473,16 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
     mContext.conservativeRasterizationProperties = conservativeRasterizationProperties;
     mContext.shadingRateProperties = shadingRateProperties;
     mContext.opacityMicromapProperties = opacityMicromapProperties;
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
     mContext.nvRayTracingInvocationReorderProperties = nvRayTracingInvocationReorderProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
     mContext.nvClusterAccelerationStructureProperties = nvClusterAccelerationStructureProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     mContext.coopVecProperties = coopVecProperties;
 #endif
     mContext.subgroupProperties = subgroupProperties;
-    mContext.messageCallback = desc.errorCB;
-    mContext.logBufferLifetime = desc.logBufferLifetime;
 
     if (mContext.extensions.KHR_fragment_shading_rate)
     {
@@ -377,20 +491,23 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
         mContext.physicalDevice.getFeatures2(&deviceFeatures2);
     }
 
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     if (mContext.extensions.NV_cooperative_vector)
     {
         vk::PhysicalDeviceFeatures2 deviceFeatures2;
         deviceFeatures2.setPNext(&mContext.coopVecFeatures);
         mContext.physicalDevice.getFeatures2(&deviceFeatures2);
     }
+#endif
 
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
     if (mContext.extensions.NV_ray_tracing_linear_swept_spheres)
     {
         vk::PhysicalDeviceFeatures2 deviceFeatures2;
         deviceFeatures2.setPNext(&mContext.linearSweptSpheresFeatures);
         mContext.physicalDevice.getFeatures2(&deviceFeatures2);
     }
+#endif
 
     if (nvapiRuntimeMode == ENvApiRuntimeMode::ForceEnable
         && !mContext.extensions.NV_ray_tracing_invocation_reorder
@@ -400,7 +517,6 @@ ZWVKDevice::ZWVKDevice(const HRHI::HVulkan::ZWDeviceDesc& desc)
     {
         mContext.Info("Vulkan NVIDIA vendor extensions were force-enabled, but the native device did not expose any supported NVIDIA Vulkan extensions.");
     }
-#endif
 
 #if HRHI_WITH_RTXMU
     if (mContext.extensions.KHR_acceleration_structure)
@@ -581,7 +697,7 @@ bool ZWVKDevice::QueryFeatureSupport(EFeature feature, void* pInfo, size_t infoS
         return mContext.extensions.KHR_ray_query;
 
     case EFeature::ShaderExecutionReordering:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
         if (mContext.extensions.NV_ray_tracing_invocation_reorder)
         {
             return vk::RayTracingInvocationReorderModeNV::eReorder ==
@@ -591,7 +707,7 @@ bool ZWVKDevice::QueryFeatureSupport(EFeature feature, void* pInfo, size_t infoS
         return false;
 
     case EFeature::RayTracingClusters:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
         return mContext.extensions.NV_cluster_acceleration_structure;
 #else
         return false;
@@ -654,28 +770,28 @@ bool ZWVKDevice::QueryFeatureSupport(EFeature feature, void* pInfo, size_t infoS
         return mContext.extensions.EXT_mutable_descriptor_type;
 
     case EFeature::CooperativeVectorInferencing:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
         return mContext.extensions.NV_cooperative_vector && mContext.coopVecFeatures.cooperativeVector;
 #else
         return false;
 #endif
 
     case EFeature::CooperativeVectorTraining:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
         return mContext.extensions.NV_cooperative_vector && mContext.coopVecFeatures.cooperativeVectorTraining;
 #else
         return false;
 #endif
 
     case EFeature::Spheres:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
         return mContext.extensions.NV_ray_tracing_linear_swept_spheres && mContext.linearSweptSpheresFeatures.spheres;
 #else
         return false;
 #endif
 
     case EFeature::LinearSweptSpheres:
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
         return mContext.extensions.NV_ray_tracing_linear_swept_spheres &&
             mContext.linearSweptSpheresFeatures.linearSweptSpheres;
 #else
@@ -774,7 +890,7 @@ HCoopVec::ZWDeviceFeatures ZWVKDevice::QueryCoopVecFeatures()
 {
     HCoopVec::ZWDeviceFeatures result;
 
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     if (!mContext.extensions.NV_cooperative_vector)
     {
         return result;
@@ -814,7 +930,7 @@ HCoopVec::ZWDeviceFeatures ZWVKDevice::QueryCoopVecFeatures()
 
 size_t ZWVKDevice::GetCoopVecMatrixSize(HCoopVec::EDataType type, HCoopVec::EMatrixLayout layout, int rows, int columns)
 {
-#if HRHI_VULKAN_NV
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     if (!mContext.extensions.NV_cooperative_vector)
     {
         return 0;

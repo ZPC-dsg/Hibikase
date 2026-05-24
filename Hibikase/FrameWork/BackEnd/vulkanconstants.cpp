@@ -334,6 +334,7 @@ namespace HRHI
             vk::PipelineStageFlagBits2::eMicromapBuildEXT,
             vk::AccessFlagBits2::eShaderRead,
             vk::ImageLayout::eUndefined },
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
         { ResourceStates::ConvertCoopVecMatrixInput,
             vk::PipelineStageFlagBits2::eConvertCooperativeVectorMatrixNV,
             vk::AccessFlagBits2::eTransferRead,
@@ -342,6 +343,16 @@ namespace HRHI
             vk::PipelineStageFlagBits2::eConvertCooperativeVectorMatrixNV,
             vk::AccessFlagBits2::eTransferWrite,
             vk::ImageLayout::eUndefined },
+#else
+        { ResourceStates::ConvertCoopVecMatrixInput,
+            vk::PipelineStageFlagBits2::eAllCommands,
+            vk::AccessFlagBits2::eMemoryRead,
+            vk::ImageLayout::eUndefined },
+        { ResourceStates::ConvertCoopVecMatrixOutput,
+            vk::PipelineStageFlagBits2::eAllCommands,
+            vk::AccessFlagBits2::eMemoryWrite,
+            vk::ImageLayout::eUndefined },
+#endif
     };
 
     ZWVKResourceStateMapping ConvertResourceState(ResourceStates state, bool isImage)
@@ -876,6 +887,7 @@ namespace HRHI
         }
     }
 
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     vk::ComponentTypeKHR ConvertCoopVecDataType(coopvec::DataType type)
     {
         switch (type)
@@ -977,6 +989,7 @@ namespace HRHI
             return vk::CooperativeVectorMatrixLayoutNV::eRowMajor;
         }
     }
+#endif
 } // namespace HRHI
 
 namespace HRHI::HVulkan

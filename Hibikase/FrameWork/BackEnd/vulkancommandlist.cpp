@@ -165,9 +165,15 @@ namespace HRHI
 
     void ZWVKCommandList::ConvertCoopVecMatrices(HCoopVec::ZWConvertMatrixLayoutDesc const* convertDescs, size_t numDescs)
     {
-#if HRHI_VULKAN_NV
-        if (!mContext.extensions.NV_cooperative_vector || convertDescs == nullptr || numDescs == 0)
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
+        if (convertDescs == nullptr || numDescs == 0 || mCurrentCmdBuf == nullptr)
         {
+            return;
+        }
+
+        if (!mContext.extensions.NV_cooperative_vector)
+        {
+            mContext.Error("CoopVec matrix conversion is unavailable because VK_NV_cooperative_vector is not enabled on this Vulkan device.");
             return;
         }
 
@@ -223,6 +229,10 @@ namespace HRHI
 #else
         (void)convertDescs;
         (void)numDescs;
+        if (numDescs != 0)
+        {
+            mContext.Error("CoopVec matrix conversion is not supported by this Vulkan backend build.");
+        }
 #endif
     }
 }

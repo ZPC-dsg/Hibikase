@@ -1,7 +1,6 @@
 #pragma once
 
 // 暂时写死，之后该宏会设置为cmake的一个选项，由用户决定（根据自己的显卡是否为N卡）是否开启
-#define HRHI_VULKAN_NV 1
 
 #include <BackEnd/vulkanunique.h>
 #include <Common/allocators.h>
@@ -12,6 +11,47 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #include <vulkan/vulkan.hpp>
 
+#define HRHI_VULKAN_RECOMMENDED_SDK_HEADER_VERSION 318
+
+#if (VK_HEADER_VERSION >= HRHI_VULKAN_RECOMMENDED_SDK_HEADER_VERSION)
+#define HRHI_VULKAN_HAS_RECOMMENDED_SDK_HEADERS 1
+#else
+#define HRHI_VULKAN_HAS_RECOMMENDED_SDK_HEADERS 0
+#endif
+
+#if defined(VK_NV_RAY_TRACING_INVOCATION_REORDER_EXTENSION_NAME)
+#define HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER 1
+#else
+#define HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER 0
+#endif
+
+#if defined(VK_NV_CLUSTER_ACCELERATION_STRUCTURE_EXTENSION_NAME)
+#define HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE 1
+#else
+#define HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE 0
+#endif
+
+#if defined(VK_NV_COOPERATIVE_VECTOR_EXTENSION_NAME)
+#define HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR 1
+#else
+#define HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR 0
+#endif
+
+#if defined(VK_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES_EXTENSION_NAME)
+#define HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES 1
+#else
+#define HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES 0
+#endif
+
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER || \
+    HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE || \
+    HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR || \
+    HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+#define HRHI_VULKAN_HAS_ANY_NV_VENDOR_EXTENSION_HEADERS 1
+#else
+#define HRHI_VULKAN_HAS_ANY_NV_VENDOR_EXTENSION_HEADERS 0
+#endif
+
 #if HRHI_WITH_RTXMU
 #include <rtxmu/VkAccelStructManager.h>
 #endif
@@ -20,10 +60,6 @@
 #include <list>
 #include <unordered_map>
 #include <vector>
-
-#if (VK_HEADER_VERSION < 318)
-#error "Vulkan SDK version 1.4.318 or later is required to compile HRHI"
-#endif
 
 #define CHECK_VK_RETURN(res) if ((res) != vk::Result::eSuccess) { return res; }
 #define CHECK_VK_FAIL(res) if ((res) != vk::Result::eSuccess) { return nullptr; }
@@ -88,9 +124,9 @@ namespace HRHI
     vk::Extent2D ConvertFragmentShadingRate(EVariableShadingRate shadingRate);
     vk::FragmentShadingRateCombinerOpKHR ConvertShadingRateCombiner(EShadingRateCombiner combiner);
     vk::DescriptorType ConvertResourceType(EResourceType type);
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
     vk::ComponentTypeKHR ConvertCoopVecDataType(HCoopVec::EDataType type);
     HCoopVec::EDataType ConvertCoopVecDataType(vk::ComponentTypeKHR type);
-#if HRHI_VULKAN_NV
     vk::CooperativeVectorMatrixLayoutNV ConvertCoopVecMatrixLayout(HCoopVec::EMatrixLayout layout);
 #endif
 
@@ -149,7 +185,6 @@ namespace HRHI
             bool EXT_mutable_descriptor_type = false;
             bool EXT_debug_utils = false;
 
-#if HRHI_VULKAN_NV
             bool NV_ray_tracing_invocation_reorder = false;
             bool NV_cluster_acceleration_structure = false;
             bool NV_cooperative_vector = false;
@@ -159,8 +194,6 @@ namespace HRHI
             bool NV_device_diagnostic_checkpoints = false;
             bool NV_device_diagnostics_config = false;
 #endif
-
-#endif
         } extensions;
 
         vk::PhysicalDeviceProperties physicalDeviceProperties;
@@ -169,12 +202,20 @@ namespace HRHI
         vk::PhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties;
         vk::PhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties;
         vk::PhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_INVOCATION_REORDER
         vk::PhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
         vk::PhysicalDeviceClusterAccelerationStructurePropertiesNV nvClusterAccelerationStructureProperties;
+#endif
         vk::PhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateFeatures;
+#if HRHI_VULKAN_HAS_NV_COOPERATIVE_VECTOR
         vk::PhysicalDeviceCooperativeVectorFeaturesNV coopVecFeatures;
         vk::PhysicalDeviceCooperativeVectorPropertiesNV coopVecProperties;
+#endif
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
         vk::PhysicalDeviceRayTracingLinearSweptSpheresFeaturesNV linearSweptSpheresFeatures;
+#endif
         vk::PhysicalDeviceSubgroupProperties subgroupProperties;
         IMessageCallback* messageCallback = nullptr;
         bool logBufferLifetime = false;

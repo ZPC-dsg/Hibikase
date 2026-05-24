@@ -65,6 +65,28 @@ namespace HRHI
         return vk::DeviceOrHostAddressKHR().setDeviceAddress(buffer->deviceAddress + size_t(offset));
     }
 
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+    using ZWVKSpheresGeometryData = vk::AccelerationStructureGeometrySpheresDataNV;
+    using ZWVKLinearSweptSpheresGeometryData = vk::AccelerationStructureGeometryLinearSweptSpheresDataNV;
+#else
+    struct ZWVKSpheresGeometryData
+    {
+    };
+
+    struct ZWVKLinearSweptSpheresGeometryData
+    {
+    };
+#endif
+
+    constexpr const char* cVulkanSpheresBuildUnsupportedMessage =
+        "Spheres and line-swept spheres are not supported by this Vulkan backend build.";
+    constexpr const char* cVulkanSpheresRuntimeUnavailableMessage =
+        "Spheres and line-swept spheres are unavailable because the required VK_NV_ray_tracing_linear_swept_spheres feature is not enabled on this Vulkan device.";
+    constexpr const char* cVulkanClusterBuildUnsupportedMessage =
+        "Ray tracing cluster operations are not supported by this Vulkan backend build.";
+    constexpr const char* cVulkanClusterRuntimeUnavailableMessage =
+        "Ray tracing cluster operations are unavailable because VK_NV_cluster_acceleration_structure is not enabled on this Vulkan device.";
+
     static vk::BuildMicromapFlagBitsEXT GetAsVkBuildMicromapFlagBitsEXT(Hrt::EOpacityMicromapBuildFlags flags)
     {
         assert((flags & (Hrt::EOpacityMicromapBuildFlags::FastBuild | Hrt::EOpacityMicromapBuildFlags::FastTrace | Hrt::EOpacityMicromapBuildFlags::AllowCompaction)) == flags);
@@ -86,11 +108,12 @@ namespace HRHI
         return (vk::MicromapUsageEXT*)counts;
     }
 
-    static void ConvertBottomLevelGeometry(
+    static bool ConvertBottomLevelGeometry(
         const Hrt::ZWGeometryDesc& src,
         vk::AccelerationStructureGeometryKHR& dst,
         vk::AccelerationStructureTrianglesOpacityMicromapEXT& dstOmm,
-        vk::AccelerationStructureGeometryLinearSweptSpheresDataNV& dstLss,
+        ZWVKSpheresGeometryData& dstSpheres,
+        ZWVKLinearSweptSpheresGeometryData& dstLss,
         uint32_t& maxPrimitiveCount,
         vk::AccelerationStructureBuildRangeInfoKHR* pRange,
         const ZWVKContext& context,
@@ -160,7 +183,7 @@ namespace HRHI
                     else
                     {
                         context.Error("Couldn't suballocate an upload buffer for geometry transform.");
-                        return;
+                        return false;
                     }
                 }
                 else
@@ -216,10 +239,44 @@ namespace HRHI
 
             break;
         }
-        case Hrt::GeometryType::Spheres:
-            assert(false);
+        case Hrt::GeometryType::Spheres: {
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+            if (!context.extensions.NV_ray_tracing_linear_swept_spheres || !context.linearSweptSpheresFeatures.spheres)
+            {
+                context.Error(cVulkanSpheresRuntimeUnavailableMessage);
+                return false;
+            }
+
+            const Hrt::ZWGeometrySpheres& srcSpheres = src.geometryData.spheres;
+
+            dstSpheres.setIndexType(convertIndexFormatToType(srcSpheres.indexFormat, false));
+            dstSpheres.setIndexData(GetBufferAddress(srcSpheres.indexBuffer, srcSpheres.indexOffset));
+            dstSpheres.setIndexStride(srcSpheres.indexStride);
+            dstSpheres.setVertexFormat(vk::Format(ConvertFormat(srcSpheres.vertexPositionFormat)));
+            dstSpheres.setVertexData(GetBufferAddress(srcSpheres.vertexBuffer, srcSpheres.vertexPositionOffset));
+            dstSpheres.setVertexStride(srcSpheres.vertexPositionStride);
+            dstSpheres.setRadiusFormat(vk::Format(ConvertFormat(srcSpheres.vertexRadiusFormat)));
+            dstSpheres.setRadiusData(GetBufferAddress(srcSpheres.vertexBuffer, srcSpheres.vertexRadiusOffset));
+            dstSpheres.setRadiusStride(srcSpheres.vertexRadiusStride);
+
+            maxPrimitiveCount = srcSpheres.indexBuffer != nullptr ? srcSpheres.indexCount : srcSpheres.vertexCount;
+
+            dst.setGeometryType(vk::GeometryTypeNV::eSpheresNV);
+            dst.setPNext(&dstSpheres);
             break;
+#else
+            context.Error(cVulkanSpheresBuildUnsupportedMessage);
+            return false;
+#endif
+        }
         case Hrt::GeometryType::Lss: {
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+            if (!context.extensions.NV_ray_tracing_linear_swept_spheres || !context.linearSweptSpheresFeatures.linearSweptSpheres)
+            {
+                context.Error(cVulkanSpheresRuntimeUnavailableMessage);
+                return false;
+            }
+
             const Hrt::ZWGeometryLss& srcLss = src.geometryData.lss;
 
             if (srcLss.indexBuffer)
@@ -238,7 +295,7 @@ namespace HRHI
                     break;
                 default:
                     context.Error("Unsupported LSS primitive format type");
-                    return;
+                    return false;
                 }
             }
             else
@@ -247,7 +304,7 @@ namespace HRHI
                 if (srcLss.primitiveFormat != Hrt::EGeometryLssPrimitiveFormat::List)
                 {
                     context.Error("Unsupported LSS primitive format type. If indexingMode is VK_RAY_TRACING_LSS_INDEXING_MODE_SUCCESSIVE_NV, indexData must NOT be NULL");
-                    return;
+                    return false;
                 }
 
                 dstLss.setIndexType(vk::IndexType::eNoneKHR);
@@ -274,7 +331,7 @@ namespace HRHI
                 break;
             default:
                 context.Error("Unsupported LSS end cap mode type");
-                break;
+                return false;
             }
             dstLss.setEndCapsMode(endcapMode);
 
@@ -284,7 +341,14 @@ namespace HRHI
             dst.setPNext(&dstLss);
 
             break;
+#else
+            context.Error(cVulkanSpheresBuildUnsupportedMessage);
+            return false;
+#endif
         }
+        default:
+            context.Error("Encountered an unknown ray tracing geometry type.");
+            return false;
         }
 
         if (pRange)
@@ -298,6 +362,7 @@ namespace HRHI
         if ((src.flags & Hrt::EGeometryFlags::NoDuplicateAnyHitInvocation) != 0)
             geometryFlags |= vk::GeometryFlagBitsKHR::eNoDuplicateAnyHitInvocation;
         dst.setFlags(geometryFlags);
+        return true;
     }
 
     Hrt::ZWOpacityMicromapHandle ZWVKDevice::CreateOpacityMicromap(const Hrt::ZWOpacityMicromapDesc& desc)
@@ -356,7 +421,8 @@ namespace HRHI
         {
             std::vector<vk::AccelerationStructureGeometryKHR> geometries;
             std::vector<vk::AccelerationStructureTrianglesOpacityMicromapEXT> omms;
-            std::vector<vk::AccelerationStructureGeometryLinearSweptSpheresDataNV> lss;
+            std::vector<ZWVKSpheresGeometryData> spheres;
+            std::vector<ZWVKLinearSweptSpheresGeometryData> lss;
             std::vector<uint32_t> maxPrimitiveCounts;
 
             auto buildInfo = vk::AccelerationStructureBuildGeometryInfoKHR();
@@ -376,13 +442,27 @@ namespace HRHI
             {
                 geometries.resize(desc.bottomLevelGeometries.size());
                 omms.resize(desc.bottomLevelGeometries.size());
+                spheres.resize(desc.bottomLevelGeometries.size());
                 lss.resize(desc.bottomLevelGeometries.size());
                 maxPrimitiveCounts.resize(desc.bottomLevelGeometries.size());
 
                 for (size_t i = 0; i < desc.bottomLevelGeometries.size(); i++)
                 {
-                    ConvertBottomLevelGeometry(desc.bottomLevelGeometries[i], geometries[i], omms[i], lss[i], maxPrimitiveCounts[i],
-                        nullptr, mContext, nullptr, 0);
+                    if (!ConvertBottomLevelGeometry(
+                        desc.bottomLevelGeometries[i],
+                        geometries[i],
+                        omms[i],
+                        spheres[i],
+                        lss[i],
+                        maxPrimitiveCounts[i],
+                        nullptr,
+                        mContext,
+                        nullptr,
+                        0))
+                    {
+                        delete as;
+                        return nullptr;
+                    }
                 }
 
                 buildInfo.setType(vk::AccelerationStructureTypeKHR::eBottomLevel);
@@ -458,6 +538,7 @@ namespace HRHI
         return ZWMemoryRequirements();
     }
 
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
     static vk::ClusterAccelerationStructureTypeNV ConvertClusterAccelerationStructureType(Hrt::HCluster::EOperationMoveType type)
     {
         switch (type)
@@ -583,6 +664,12 @@ namespace HRHI
 
     Hrt::HCluster::ZWOperationSizeInfo ZWVKDevice::GetClusterOperationSizeInfo(const Hrt::HCluster::ZWOperationParams& params)
     {
+        if (!mContext.extensions.NV_cluster_acceleration_structure)
+        {
+            mContext.Error(cVulkanClusterRuntimeUnavailableMessage);
+            return {};
+        }
+
         Hrt::HCluster::ZWOperationSizeInfo info;
 
         // Create Vulkan operation parameters
@@ -698,11 +785,13 @@ namespace HRHI
 
         std::vector<vk::AccelerationStructureGeometryKHR> geometries;
         std::vector<vk::AccelerationStructureTrianglesOpacityMicromapEXT> omms;
-        std::vector<vk::AccelerationStructureGeometryLinearSweptSpheresDataNV> lss;
+        std::vector<ZWVKSpheresGeometryData> spheres;
+        std::vector<ZWVKLinearSweptSpheresGeometryData> lss;
         std::vector<vk::AccelerationStructureBuildRangeInfoKHR> buildRanges;
         std::vector<uint32_t> maxPrimitiveCounts;
         geometries.resize(numGeometries);
         omms.resize(numGeometries);
+        spheres.resize(numGeometries);
         lss.resize(numGeometries);
         maxPrimitiveCounts.resize(numGeometries);
         buildRanges.resize(numGeometries);
@@ -711,8 +800,20 @@ namespace HRHI
 
         for (size_t i = 0; i < numGeometries; i++)
         {
-            ConvertBottomLevelGeometry(pGeometries[i], geometries[i], omms[i], lss[i], maxPrimitiveCounts[i], &buildRanges[i],
-                mContext, m_UploadManager.get(), currentVersion);
+            if (!ConvertBottomLevelGeometry(
+                pGeometries[i],
+                geometries[i],
+                omms[i],
+                spheres[i],
+                lss[i],
+                maxPrimitiveCounts[i],
+                &buildRanges[i],
+                mContext,
+                m_UploadManager.get(),
+                currentVersion))
+            {
+                return;
+            }
 
             const Hrt::ZWGeometryDesc& src = pGeometries[i];
 
@@ -740,10 +841,8 @@ namespace HRHI
                 }
                 break;
             }
-            case Hrt::GeometryType::Spheres:
-                assert(false);
-                break;
             case Hrt::GeometryType::Lss: {
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
                 const Hrt::ZWGeometryLss& srcLss = src.geometryData.lss;
                 if (m_EnableAutomaticBarriers)
                 {
@@ -753,6 +852,26 @@ namespace HRHI
                         RequireBufferState(srcLss.vertexBuffer, EResourceStates::AccelStructBuildInput);
                 }
                 break;
+#else
+                mContext.Error(cVulkanSpheresBuildUnsupportedMessage);
+                return;
+#endif
+            }
+            case Hrt::GeometryType::Spheres: {
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
+                const Hrt::ZWGeometrySpheres& srcSpheres = src.geometryData.spheres;
+                if (m_EnableAutomaticBarriers)
+                {
+                    if (srcSpheres.indexBuffer)
+                        RequireBufferState(srcSpheres.indexBuffer, EResourceStates::AccelStructBuildInput);
+                    if (srcSpheres.vertexBuffer)
+                        RequireBufferState(srcSpheres.vertexBuffer, EResourceStates::AccelStructBuildInput);
+                }
+                break;
+#else
+                mContext.Error(cVulkanSpheresBuildUnsupportedMessage);
+                return;
+#endif
             }
             }
         }
@@ -1059,6 +1178,54 @@ namespace HRHI
 
     void ZWVKCommandList::ExecuteMultiIndirectClusterOperation(const Hrt::HCluster::ZWOperationDesc& desc)
     {
+        if (!mContext.extensions.NV_cluster_acceleration_structure)
+        {
+            mContext.Error(cVulkanClusterRuntimeUnavailableMessage);
+            return;
+        }
+
+        if (desc.params.maxArgCount == 0)
+        {
+            return;
+        }
+
+        if (desc.inIndirectArgsBuffer == nullptr)
+        {
+            mContext.Error("ExecuteMultiIndirectClusterOperation requires a valid indirect arguments buffer.");
+            return;
+        }
+
+        if (desc.scratchSizeInBytes == 0)
+        {
+            mContext.Error("ExecuteMultiIndirectClusterOperation requires a non-zero scratch size.");
+            return;
+        }
+
+        if (desc.params.mode == Hrt::HCluster::EOperationMode::ImplicitDestinations)
+        {
+            if (desc.inOutAddressesBuffer == nullptr || desc.outAccelerationStructuresBuffer == nullptr)
+            {
+                mContext.Error("ImplicitDestinations cluster operations require both the addresses buffer and the destination acceleration-structure buffer.");
+                return;
+            }
+        }
+        else if (desc.params.mode == Hrt::HCluster::EOperationMode::ExplicitDestinations)
+        {
+            if (desc.inOutAddressesBuffer == nullptr)
+            {
+                mContext.Error("ExplicitDestinations cluster operations require a destination address buffer.");
+                return;
+            }
+        }
+        else if (desc.params.mode == Hrt::HCluster::EOperationMode::GetSizes)
+        {
+            if (desc.outSizesBuffer == nullptr)
+            {
+                mContext.Error("GetSizes cluster operations require a valid output size buffer.");
+                return;
+            }
+        }
+
         // Create Vulkan operation info
         vk::ClusterAccelerationStructureInputInfoNV inputInfo = {};
         vk::ClusterAccelerationStructureMoveObjectsInputNV moveInput = {};
@@ -1165,6 +1332,20 @@ namespace HRHI
         // Execute the cluster operation
         mCurrentCmdBuf->cmdBuf.buildClusterAccelerationStructureIndirectNV(commandsInfo);
     }
+#else
+    Hrt::HCluster::ZWOperationSizeInfo ZWVKDevice::GetClusterOperationSizeInfo(const Hrt::HCluster::ZWOperationParams& params)
+    {
+        (void)params;
+        mContext.Error(cVulkanClusterBuildUnsupportedMessage);
+        return {};
+    }
+
+    void ZWVKCommandList::ExecuteMultiIndirectClusterOperation(const Hrt::HCluster::ZWOperationDesc& desc)
+    {
+        (void)desc;
+        mContext.Error(cVulkanClusterBuildUnsupportedMessage);
+    }
+#endif
 
     ZWVKAccelStruct::~ZWVKAccelStruct()
     {
@@ -1641,16 +1822,25 @@ namespace HRHI
 
         auto libraryInfo = vk::PipelineLibraryCreateInfoKHR();
 
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
         auto pipelineClusters = vk::RayTracingPipelineClusterAccelerationStructureCreateInfoNV()
             .setAllowClusterAccelerationStructure(true);
+#endif
 
         auto pipelineFlags2 = vk::PipelineCreateFlags2CreateInfoKHR();
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
         const bool supportsSpheres = mContext.extensions.NV_ray_tracing_linear_swept_spheres && mContext.linearSweptSpheresFeatures.spheres;
         const bool supportsLinearSweptSpheres =
             mContext.extensions.NV_ray_tracing_linear_swept_spheres && mContext.linearSweptSpheresFeatures.linearSweptSpheres;
+#else
+        const bool supportsSpheres = false;
+        const bool supportsLinearSweptSpheres = false;
+#endif
         if (supportsSpheres || supportsLinearSweptSpheres)
         {
+#if HRHI_VULKAN_HAS_NV_RAY_TRACING_LINEAR_SWEPT_SPHERES
             pipelineFlags2.setFlags(vk::PipelineCreateFlagBits2::eRayTracingAllowSpheresAndLinearSweptSpheresNV);
+#endif
         }
 
         auto pipelineInfo = vk::RayTracingPipelineCreateInfoKHR()
@@ -1667,11 +1857,13 @@ namespace HRHI
 
         if (mContext.extensions.NV_cluster_acceleration_structure)
         {
+#if HRHI_VULKAN_HAS_NV_CLUSTER_ACCELERATION_STRUCTURE
             if (supportsSpheres || supportsLinearSweptSpheres)
             {
                 pipelineClusters.setPNext(&pipelineFlags2);
             }
             pipelineInfo.setPNext(&pipelineClusters);
+#endif
         }
 
         res = mContext.device.createRayTracingPipelinesKHR(vk::DeferredOperationKHR(), mContext.pipelineCache,
