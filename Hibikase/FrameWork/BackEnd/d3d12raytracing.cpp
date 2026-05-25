@@ -2909,13 +2909,13 @@ namespace HRHI::HD3D12
         }
 
         nativeDesc.indirectArgArray.StartAddress = inIndirectArgsBuffer->gpuVA + desc.inIndirectArgsOffsetInBytes;
-        nativeDesc.indirectArgArray.StrideInBytes = inIndirectArgsBuffer->desc.structStride;
+        nativeDesc.indirectArgArray.StrideInBytes = inIndirectArgsBuffer->desc.elementStride;
         nativeDesc.batchScratchData = scratchGpuVA;
 
         if (inOutAddressesBuffer != nullptr)
         {
             nativeDesc.destinationAddressArray.StartAddress = inOutAddressesBuffer->gpuVA + desc.inOutAddressesOffsetInBytes;
-            nativeDesc.destinationAddressArray.StrideInBytes = inOutAddressesBuffer->desc.structStride;
+            nativeDesc.destinationAddressArray.StrideInBytes = inOutAddressesBuffer->desc.elementStride;
         }
 
         if (outAccelerationStructuresBuffer != nullptr)
@@ -2926,7 +2926,7 @@ namespace HRHI::HD3D12
         if (outSizesBuffer != nullptr)
         {
             nativeDesc.resultSizeArray.StartAddress = outSizesBuffer->gpuVA + desc.outSizesOffsetInBytes;
-            nativeDesc.resultSizeArray.StrideInBytes = outSizesBuffer->desc.structStride;
+            nativeDesc.resultSizeArray.StrideInBytes = outSizesBuffer->desc.elementStride;
         }
 
         NVAPI_RAYTRACING_EXECUTE_MULTI_INDIRECT_CLUSTER_OPERATION_PARAMS params = {};

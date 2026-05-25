@@ -217,10 +217,10 @@ namespace HRHI::HD3D12
                 << " Gpu:0x" << std::hex << GetGpuVirtualAddress()
                 << "->0x" << std::hex << (GetGpuVirtualAddress() + desc.byteSize);
 
-            if (desc.structStride != 0)
+            if (desc.elementStride != 0)
             {
-                messageBuilder << " (n:" << std::dec << (desc.byteSize / desc.structStride)
-                    << " stride:" << desc.structStride
+                messageBuilder << " (n:" << std::dec << (desc.byteSize / desc.elementStride)
+                    << " stride:" << desc.elementStride
                     << "B size:" << displaySize << displayUnit << ")";
             }
             else
@@ -388,14 +388,15 @@ namespace HRHI::HD3D12
         switch (type)
         {
         case EResourceType::StructuredBuffer_SRV:
-            assert(desc.structStride != 0);
+            assert(desc.elementStride != 0 && desc.bufferMode == EBufferMode::Structured);
             viewDesc.Format = DXGI_FORMAT_UNKNOWN;
-            viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / desc.structStride);
-            viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / desc.structStride);
-            viewDesc.Buffer.StructureByteStride = desc.structStride;
+            viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / desc.elementStride);
+            viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / desc.elementStride);
+            viewDesc.Buffer.StructureByteStride = desc.elementStride;
             break;
 
         case EResourceType::RawBuffer_SRV:
+            assert(desc.bufferMode == EBufferMode::Raw);
             viewDesc.Format = DXGI_FORMAT_R32_TYPELESS;
             viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / 4);
             viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / 4);
@@ -404,7 +405,7 @@ namespace HRHI::HD3D12
 
         case EResourceType::TypedBuffer_SRV:
         {
-            assert(format != EFormat::UNKNOWN);
+            assert(format != EFormat::UNKNOWN && desc.bufferMode == EBufferMode::Formatted);
             const ZWDxgiFormatMapping& formatMapping = GetDxgiFormatMapping(format);
             const ZWFormatInfo& formatInfo = GetFormatInfo(format);
 
@@ -447,14 +448,15 @@ namespace HRHI::HD3D12
         switch (type)
         {
         case EResourceType::StructuredBuffer_UAV:
-            assert(desc.structStride != 0);
+            assert(desc.elementStride != 0 && desc.bufferMode == EBufferMode::Structured);
             viewDesc.Format = DXGI_FORMAT_UNKNOWN;
-            viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / desc.structStride);
-            viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / desc.structStride);
-            viewDesc.Buffer.StructureByteStride = desc.structStride;
+            viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / desc.elementStride);
+            viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / desc.elementStride);
+            viewDesc.Buffer.StructureByteStride = desc.elementStride;
             break;
 
         case EResourceType::RawBuffer_UAV:
+            assert(desc.bufferMode == EBufferMode::Raw);
             viewDesc.Format = DXGI_FORMAT_R32_TYPELESS;
             viewDesc.Buffer.FirstElement = static_cast<UINT>(range.byteOffset / 4);
             viewDesc.Buffer.NumElements = static_cast<UINT>(range.byteSize / 4);
@@ -463,7 +465,7 @@ namespace HRHI::HD3D12
 
         case EResourceType::TypedBuffer_UAV:
         {
-            assert(format != EFormat::UNKNOWN);
+            assert(format != EFormat::UNKNOWN && desc.bufferMode == EBufferMode::Formatted);
             const ZWDxgiFormatMapping& formatMapping = GetDxgiFormatMapping(format);
             const ZWFormatInfo& formatInfo = GetFormatInfo(format);
 

@@ -186,6 +186,29 @@ namespace HRHI
     };
     HRHI_ENUM_CLASS_FLAG_OPERATORS(EResourceStates)
 
+    /// Describes the buffer access mode.
+    enum class EBufferMode : uint8_t
+    {
+        // Undefined mode.
+        Undefined = 0,
+
+        // Formatted buffer. Access to the buffer will use format conversion operations.
+        // In this mode, elementStride member of BufferDesc defines the buffer element size.
+        // Buffer views can use different formats, but the format size must match elementStride.
+        Formatted,
+
+        // Structured buffer.
+        // In this mode, elementStride member of BufferDesc defines the structure stride.
+        Structured,
+
+        // Raw buffer.
+        // In this mode, the buffer is accessed as raw bytes. Formatted views of a raw
+        // buffer can also be created similar to formatted buffer. If formatted views
+        // are to be created, the elementStride member of BufferDesc must specify the
+        // size of the format.
+        Raw
+    };
+
     // Flags for resources that need to be shared with other graphics APIs or other GPU devices.
     enum class ESharedResourceFlags : uint32_t
     {

@@ -60,7 +60,7 @@ namespace HRHI
         if (desc.isConstantBuffer)
             usageFlags |= vk::BufferUsageFlagBits::eUniformBuffer;
 
-        if (desc.structStride != 0 || desc.canHaveUAVs || desc.canHaveRawViews)
+        if (desc.elementStride != 0 || desc.canHaveUAVs || desc.canHaveRawViews)
             usageFlags |= vk::BufferUsageFlagBits::eStorageBuffer;
         
         if (desc.canHaveTypedViews)
@@ -182,10 +182,10 @@ namespace HRHI
                 << " Buf:0x" << std::hex << reinterpret_cast<uintptr_t>(VkBuffer(buffer->buffer))
                 << " Gpu:0x" << std::hex << buffer->GetGpuVirtualAddress() << "->0x" << std::hex << buffer->GetGpuVirtualAddress() + desc.byteSize;
 
-            if (desc.structStride)
+            if (desc.elementStride)
             {
-                ss << " (n:" << std::dec << (desc.structStride ? desc.byteSize / desc.structStride : 0)
-                    << " stride:" << std::dec << desc.structStride
+                ss << " (n:" << std::dec << (desc.elementStride ? desc.byteSize / desc.elementStride : 0)
+                    << " stride:" << std::dec << desc.elementStride
                     << "B size:" << std::dec << byteDisplay << byteUnit << ")";
             }
             else

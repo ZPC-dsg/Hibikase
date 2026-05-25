@@ -228,10 +228,16 @@ namespace HRHI
     struct ZWBufferDesc
     {
         uint64_t byteSize = 0;
-        uint32_t structStride = 0; // if non-zero it's structured
+        // For a structured buffer (ZWBufferDesc::bufferMode equals EBufferMode::Structured) this member
+        // defines the size of each buffer element. For a formatted buffer
+        // (ZWBufferDesc::bufferMode equals EBufferMode::Formatted) and optionally for a raw buffer
+        // (EBufferMode::Raw), this member defines the size of the format that will be used for views
+        // created for this buffer.
+        uint32_t elementStride = 0;
         uint32_t maxVersions = 0; // only valid and required to be nonzero for volatile buffers on Vulkan
         std::string debugName;
         EFormat format = EFormat::UNKNOWN; // for typed buffer views
+        EBufferMode bufferMode = EBufferMode::Undefined;
         bool canHaveUAVs = false;
         bool canHaveTypedViews = false;
         bool canHaveRawViews = false;
@@ -261,10 +267,11 @@ namespace HRHI
         ESharedResourceFlags sharedResourceFlags = ESharedResourceFlags::None;
 
         constexpr ZWBufferDesc& setByteSize(uint64_t value) { byteSize = value; return *this; }
-        constexpr ZWBufferDesc& setStructStride(uint32_t value) { structStride = value; return *this; }
+        constexpr ZWBufferDesc& setElementStride(uint32_t value) { elementStride = value; return *this; }
         constexpr ZWBufferDesc& setMaxVersions(uint32_t value) { maxVersions = value; return *this; }
         ZWBufferDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
         constexpr ZWBufferDesc& setFormat(EFormat value) { format = value; return *this; }
+        constexpr ZWBufferDesc& setBufferMode(EBufferMode value) { bufferMode = value; return *this; }
         constexpr ZWBufferDesc& setCanHaveUAVs(bool value) { canHaveUAVs = value; return *this; }
         constexpr ZWBufferDesc& setCanHaveTypedViews(bool value) { canHaveTypedViews = value; return *this; }
         constexpr ZWBufferDesc& setCanHaveRawViews(bool value) { canHaveRawViews = value; return *this; }

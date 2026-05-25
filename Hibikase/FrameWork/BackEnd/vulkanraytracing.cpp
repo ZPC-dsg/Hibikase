@@ -1302,7 +1302,7 @@ namespace HRHI
         {
             commandsInfo.dstAddressesArray
                 .setDeviceAddress(inOutAddressesBuffer->deviceAddress + desc.inOutAddressesOffsetInBytes)
-                .setStride(inOutAddressesBuffer->GetDesc().structStride)
+                .setStride(inOutAddressesBuffer->GetDesc().elementStride)
                 .setSize(inOutAddressesBuffer->GetDesc().byteSize - desc.inOutAddressesOffsetInBytes);
         }
         
@@ -1310,7 +1310,7 @@ namespace HRHI
         {
             commandsInfo.dstSizesArray
                 .setDeviceAddress(outSizesBuffer->deviceAddress + desc.outSizesOffsetInBytes)
-                .setStride(outSizesBuffer->GetDesc().structStride)
+                .setStride(outSizesBuffer->GetDesc().elementStride)
                 .setSize(outSizesBuffer->GetDesc().byteSize - desc.outSizesOffsetInBytes);
         }
         
@@ -1318,7 +1318,7 @@ namespace HRHI
         {
             commandsInfo.srcInfosArray
                 .setDeviceAddress(indirectArgsBuffer->deviceAddress + desc.inIndirectArgsOffsetInBytes)
-                .setStride(indirectArgsBuffer->GetDesc().structStride)
+                .setStride(indirectArgsBuffer->GetDesc().elementStride)
                 .setSize(indirectArgsBuffer->GetDesc().byteSize - desc.inIndirectArgsOffsetInBytes);
         }
         

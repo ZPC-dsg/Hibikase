@@ -481,7 +481,7 @@ namespace HRHI::HD3D12
 
         ZWBufferDesc bufferDesc = {};
         bufferDesc.byteSize = stagingTexture->GetSizeInBytes(mContext.device.Get());
-        bufferDesc.structStride = 0;
+        bufferDesc.elementStride = 0;
         bufferDesc.debugName = desc.debugName;
         bufferDesc.cpuAccess = cpuAccess;
 

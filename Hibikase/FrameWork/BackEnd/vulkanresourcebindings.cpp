@@ -505,11 +505,11 @@ namespace HRHI
                 const auto buffer = static_cast<ZWVKBuffer *>(binding.resourceHandle);
 
                 if (binding.type == EResourceType::StructuredBuffer_UAV || binding.type == EResourceType::RawBuffer_UAV)
-                    assert(buffer->desc.canHaveUAVs);
+                    assert(buffer->desc.canHaveUAVs && (buffer->desc.bufferMode == EBufferMode::Structured || buffer->desc.bufferMode == EBufferMode::Raw));
                 if (binding.type == EResourceType::StructuredBuffer_UAV || binding.type == EResourceType::StructuredBuffer_SRV)
-                    assert(buffer->desc.structStride != 0);
+                    assert(buffer->desc.elementStride != 0 && buffer->desc.bufferMode == EBufferMode::Structured);
                 if (binding.type == EResourceType::RawBuffer_SRV|| binding.type == EResourceType::RawBuffer_UAV)
-                    assert(buffer->desc.canHaveRawViews);
+                    assert(buffer->desc.canHaveRawViews && buffer->desc.bufferMode == EBufferMode::Raw);
 
                 const auto range = binding.range.resolve(buffer->desc);
 
